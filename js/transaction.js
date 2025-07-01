@@ -183,11 +183,19 @@ export function showTransactionModal(transaction = null) {
         document.getElementById('transaction-date').value = transaction.date ? transaction.date.split('T')[0] : '';
         document.getElementById('transaction-customer').value = transaction.customer || '';
         document.getElementById('transaction-description').value = transaction.description || '';
+        document.getElementById('transaction-company').value = transaction.CompanyName || '';
     } else {
         title.textContent = 'Tambah Transaksi';
         document.getElementById('transaction-form').reset();
         document.getElementById('transaction-oid').value = '';
         document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
+        // Set default CompanyName dari localStorage
+        let companyName = '';
+        try {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            companyName = user.CompanyName || user.company_name || user.username || '';
+        } catch { }
+        document.getElementById('transaction-company').value = companyName;
     }
     modal.classList.remove('hidden');
 }
