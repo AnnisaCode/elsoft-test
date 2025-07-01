@@ -204,7 +204,34 @@ export async function showItemModal(item = null) {
         let groupOid = item.ItemGroup;
         let accGroupOid = item.ItemAccountGroup;
         let unitOid = item.ItemUnit;
-        renderItemModalFields(true, item.ItemGroupName, item.ItemAccountGroupName, item.ItemUnitName, groupOid, accGroupOid, unitOid);
+        // Pastikan data master sudah ada
+        if (!itemGroups.length || !itemAccountGroups.length || !itemUnits.length) {
+            await loadItemMasters();
+        }
+        // Render ulang field select
+        window.renderItemModalFields(true, item.ItemGroupName, item.ItemAccountGroupName, item.ItemUnitName, groupOid, accGroupOid, unitOid);
+        // Isi option dropdown
+        const groupSelect = document.getElementById('item-group');
+        if (groupSelect) {
+            groupSelect.innerHTML = itemGroups.map(g =>
+                `<option value="${g.Oid}">${g.Name || g.Label}</option>`
+            ).join('');
+            if (groupOid) groupSelect.value = groupOid;
+        }
+        const accGroupSelect = document.getElementById('item-account-group');
+        if (accGroupSelect) {
+            accGroupSelect.innerHTML = itemAccountGroups.map(g =>
+                `<option value="${g.Oid}">${g.Name || g.Label}</option>`
+            ).join('');
+            if (accGroupOid) accGroupSelect.value = accGroupOid;
+        }
+        const unitSelect = document.getElementById('item-unit');
+        if (unitSelect) {
+            unitSelect.innerHTML = itemUnits.map(u =>
+                `<option value="${u.Oid}">${u.Name || u.Label}</option>`
+            ).join('');
+            if (unitOid) unitSelect.value = unitOid;
+        }
         title.textContent = 'Edit Item';
         document.getElementById('item-oid').value = item.Oid;
         document.getElementById('item-company').value = item.CompanyName || '';
@@ -214,7 +241,30 @@ export async function showItemModal(item = null) {
         document.getElementById('item-active').checked = item.IsActive === 'Y' || item.IsActive === true || item.IsActive === 'true';
     } else {
         // TAMBAH MODE: render select
-        renderItemModalFields(false);
+        window.renderItemModalFields(false);
+        // Pastikan data master sudah ada
+        if (!itemGroups.length || !itemAccountGroups.length || !itemUnits.length) {
+            await loadItemMasters();
+        }
+        // Isi option dropdown
+        const groupSelect = document.getElementById('item-group');
+        if (groupSelect) {
+            groupSelect.innerHTML = itemGroups.map(g =>
+                `<option value="${g.Oid}">${g.Name || g.Label}</option>`
+            ).join('');
+        }
+        const accGroupSelect = document.getElementById('item-account-group');
+        if (accGroupSelect) {
+            accGroupSelect.innerHTML = itemAccountGroups.map(g =>
+                `<option value="${g.Oid}">${g.Name || g.Label}</option>`
+            ).join('');
+        }
+        const unitSelect = document.getElementById('item-unit');
+        if (unitSelect) {
+            unitSelect.innerHTML = itemUnits.map(u =>
+                `<option value="${u.Oid}">${u.Name || u.Label}</option>`
+            ).join('');
+        }
         title.textContent = 'Tambah Item';
         document.getElementById('item-form').reset();
         document.getElementById('item-oid').value = '';
@@ -229,7 +279,6 @@ export async function showItemModal(item = null) {
         document.getElementById('item-code').value = '<<Auto>>';
         document.getElementById('item-title').value = '';
         document.getElementById('item-active').checked = true;
-        await loadItemMasters();
     }
     // Pastikan readonly dan abu-abu
     ['item-company', 'item-type', 'item-code'].forEach(id => {
