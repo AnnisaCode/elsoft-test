@@ -18,11 +18,22 @@ export async function loadTransactions() {
             </tr>
         `;
         const response = await apiRequest('https://api-app.elsoft.id/admin/api/v1/stockissue/list');
-        if (response.success && response.data) {
-            currentTransactions = response.data;
+        console.log('API stockissue/list response:', response);
+
+        let transactions = [];
+        if (Array.isArray(response)) {
+            transactions = response;
+        } else if (response.data && Array.isArray(response.data)) {
+            transactions = response.data;
+        } else if (response.list && Array.isArray(response.list)) {
+            transactions = response.list;
+        }
+
+        if (transactions.length > 0) {
+            currentTransactions = transactions;
             renderTransactions(currentTransactions);
         } else {
-            throw new Error(response.message || 'Failed to load transactions');
+            throw new Error(response.message || 'Tidak ada data transaksi atau struktur response tidak sesuai.');
         }
     } catch (error) {
         showToast('Gagal memuat data transaksi: ' + error.message, 'error');
@@ -41,25 +52,23 @@ export function renderTransactions(transactions) {
     if (!transactions || transactions.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                     Tidak ada data transaksi
                 </td>
             </tr>
         `;
         return;
     }
-    tbody.innerHTML = transactions.map(transaction => `
+    tbody.innerHTML = transactions.map((transaction, idx) => `
         <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.docno || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDateShort(transaction.date)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.customer || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(transaction.total)}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(transaction.status)}">
-                    ${transaction.status || 'Draft'}
-                </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <td class="px-4 py-2 text-center">${transaction.RowCountNumber || idx + 1}</td>
+            <td class="px-4 py-2">${transaction.CompanyName || '-'}</td>
+            <td class="px-4 py-2">${transaction.Code || '-'}</td>
+            <td class="px-4 py-2">${transaction.Note || '-'}</td>
+            <td class="px-4 py-2 text-center">${transaction.Date || '-'}</td>
+            <td class="px-4 py-2">${transaction.AccountName || '-'}</td>
+            <td class="px-4 py-2 text-center">${transaction.StatusName || '-'}</td>
+            <td class="px-4 py-2 text-center">
                 <button onclick="editTransaction('${transaction.Oid}')" class="text-primary hover:text-secondary mr-2">Edit</button>
                 <button onclick="deleteTransaction('${transaction.Oid}')" class="text-red-600 hover:text-red-900">Hapus</button>
             </td>
