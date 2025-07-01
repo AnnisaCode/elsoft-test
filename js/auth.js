@@ -34,8 +34,12 @@ export async function handleLogin(e) {
         });
         const result = await response.json();
         if (response.ok && (result.access_token || (result.data && result.data.token))) {
+            let user = result.user || result.data?.user || { username: loginData.UserName, Oid: result.Oid };
+            if (!user.Company && (user.CompanyOid || user.company_id)) {
+                user.Company = user.CompanyOid || user.company_id;
+            }
             localStorage.setItem('authToken', result.access_token || (result.data && result.data.token));
-            localStorage.setItem('currentUser', JSON.stringify(result.user || result.data?.user || { username: loginData.UserName, Oid: result.Oid }));
+            localStorage.setItem('currentUser', JSON.stringify(user));
             showToast('Login berhasil!', 'success');
             showNavbar();
             navigateToPage('item');

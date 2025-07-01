@@ -161,8 +161,6 @@ export function filterItems() {
 export async function showItemModal(item = null) {
     const modal = document.getElementById('item-modal');
     const title = document.getElementById('item-modal-title');
-    await loadItemMasters();
-    populateItemDropdowns();
     document.getElementById('item-company').value = 'testcase'; // atau ambil dari currentUser
     document.getElementById('item-type').value = 'Product';
     if (item) {
@@ -170,9 +168,9 @@ export async function showItemModal(item = null) {
         document.getElementById('item-oid').value = item.Oid;
         document.getElementById('item-code').value = item.Code || '<<Auto>>';
         document.getElementById('item-title').value = item.Label || '';
-        document.getElementById('item-group').value = item.ItemGroup || '';
-        document.getElementById('item-account-group').value = item.ItemAccountGroup || '';
-        document.getElementById('item-unit').value = item.ItemUnit || '';
+        document.getElementById('item-group').value = item.ItemGroupName || '-';
+        document.getElementById('item-account-group').value = item.ItemAccountGroupName || '-';
+        document.getElementById('item-unit').value = item.ItemUnitName || '-';
         document.getElementById('item-active').checked = item.IsActive === 'Y' || item.IsActive === true || item.IsActive === 'true';
     } else {
         title.textContent = 'Tambah Item';
@@ -180,6 +178,9 @@ export async function showItemModal(item = null) {
         document.getElementById('item-oid').value = '';
         document.getElementById('item-code').value = '<<Auto>>';
         document.getElementById('item-title').value = '';
+        document.getElementById('item-group').value = '';
+        document.getElementById('item-account-group').value = '';
+        document.getElementById('item-unit').value = '';
         document.getElementById('item-active').checked = true;
     }
     modal.classList.remove('hidden');
@@ -264,18 +265,44 @@ export async function deleteItem(oid) {
     }
 }
 
-export async function loadItemMasters() {
+export async function loadItemMasters(companyId = null) {
+    // Ambil company id dari parameter jika ada, jika tidak dari localStorage
+    if (!companyId) {
+        try {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (user && user.Company) companyId = user.Company;
+        } catch { }
+    }
+    if (!companyId) {
+        // Jika tidak ada company id, tampilkan error di semua dropdown dan disable tombol save
+        const groupSelect = document.getElementById('item-group');
+        const accGroupSelect = document.getElementById('item-account-group');
+        const unitSelect = document.getElementById('item-unit');
+        const saveBtn = document.querySelector('#item-form button[type="submit"]');
+        function setDropdownError(select, msg) {
+            if (select) {
+                select.innerHTML = `<option value="">${msg}</option>`;
+                select.disabled = true;
+            }
+        }
+        setDropdownError(groupSelect, 'Company ID tidak ditemukan');
+        setDropdownError(accGroupSelect, 'Company ID tidak ditemukan');
+        setDropdownError(unitSelect, 'Company ID tidak ditemukan');
+        if (saveBtn) saveBtn.disabled = true;
+        console.error('Company ID tidak ditemukan di localStorage maupun data item.');
+        return;
+    }
     let error = false;
     // Item Group
-    const groupRes = await apiRequest('https://api-app.elsoft.id/admin/api/v1/itemgroup/list');
+    const groupRes = await apiRequest(`https://app.elsoft.id/itemgroup?Module=item&Company=${companyId}`);
     itemGroups = Array.isArray(groupRes.data) ? groupRes.data : [];
     if (!itemGroups.length) error = true;
     // Item Account Group
-    const accGroupRes = await apiRequest('https://api-app.elsoft.id/admin/api/v1/itemaccountgroup/list');
+    const accGroupRes = await apiRequest(`https://app.elsoft.id/itemaccountgroup?Module=item&Company=${companyId}`);
     itemAccountGroups = Array.isArray(accGroupRes.data) ? accGroupRes.data : [];
     if (!itemAccountGroups.length) error = true;
     // Item Unit
-    const unitRes = await apiRequest('https://api-app.elsoft.id/admin/api/v1/itemunit/list');
+    const unitRes = await apiRequest(`https://app.elsoft.id/itemunit?Module=item&Company=${companyId}`);
     itemUnits = Array.isArray(unitRes.data) ? unitRes.data : [];
     if (!itemUnits.length) error = true;
 
