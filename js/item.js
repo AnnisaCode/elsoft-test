@@ -11,15 +11,16 @@ export let lastPage = 1;
 export let totalData = 0;
 export const perPage = 20;
 export let searchTerm = '';
+export let allItemsCache = null;
 
-export async function loadItems(page = 1, search = '') {
+export async function loadItems(page = 1, search = '', forceReload = false) {
     currentPage = page;
     searchTerm = search;
     try {
         const tbody = document.getElementById('items-table-body');
         tbody.innerHTML = `
             <tr>
-                <td colspan="10" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="11" class="px-6 py-4 text-center text-gray-500">
                     <div class="flex justify-center items-center">
                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                         <span class="ml-2">Memuat data...</span>
@@ -27,31 +28,45 @@ export async function loadItems(page = 1, search = '') {
                 </td>
             </tr>
         `;
-        let url = `https://api-app.elsoft.id/admin/api/v1/item/list?page=${page}&per_page=${perPage}`;
-        if (search) {
-            url += `&search=${encodeURIComponent(search)}`;
+        // Jika sudah pernah load dan tidak forceReload, pakai cache
+        if (allItemsCache && !forceReload) {
+            filterAndRenderItems();
+            return;
         }
+        // Ambil seluruh data dari semua page
+        let allItems = [];
+        let pageNum = 1;
+        let lastPageNum = 1;
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         };
-        const response = await fetch(url, { headers });
-        const data = await response.json();
-        if (Array.isArray(data.data)) {
-            currentItems = data.data;
-            currentPage = data.meta?.current_page || 1;
-            lastPage = data.meta?.last_page || 1;
-            totalData = data.meta?.total || data.CountTotalFooter || 0;
-            renderItems(currentItems);
-            renderPagination();
-        } else {
-            throw new Error(data.message || 'Failed to load items');
-        }
+        do {
+            let url = `https://api-app.elsoft.id/admin/api/v1/item/list?page=${pageNum}&per_page=100`;
+            const response = await fetch(url, { headers });
+            const data = await response.json();
+            if (Array.isArray(data.data)) {
+                allItems = allItems.concat(data.data);
+                lastPageNum = data.meta?.last_page || 1;
+                totalData = data.meta?.total || data.CountTotalFooter || 0;
+            } else {
+                throw new Error(data.message || 'Failed to load items');
+            }
+            pageNum++;
+        } while (pageNum <= lastPageNum);
+        // Urutkan berdasarkan kode descending
+        allItems.sort((a, b) => {
+            if (!a.Code) return 1;
+            if (!b.Code) return -1;
+            return b.Code.localeCompare(a.Code, undefined, { numeric: true, sensitivity: 'base' });
+        });
+        allItemsCache = allItems;
+        filterAndRenderItems();
     } catch (error) {
         showToast('Gagal memuat data item: ' + error.message, 'error');
         document.getElementById('items-table-body').innerHTML = `
             <tr>
-                <td colspan="10" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="11" class="px-6 py-4 text-center text-gray-500">
                     Gagal memuat data. <button onclick="loadItems()" class="text-primary hover:underline">Coba lagi</button>
                 </td>
             </tr>
@@ -59,7 +74,27 @@ export async function loadItems(page = 1, search = '') {
     }
 }
 
+function filterAndRenderItems() {
+    // Filter search di frontend
+    let filtered = allItemsCache;
+    if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        filtered = allItemsCache.filter(item =>
+            (item.Label && item.Label.toLowerCase().includes(term)) ||
+            (item.Code && item.Code.toLowerCase().includes(term)) ||
+            (item.ItemGroupName && item.ItemGroupName.toLowerCase().includes(term))
+        );
+    }
+    currentItems = filtered;
+    lastPage = Math.ceil(currentItems.length / perPage);
+    const startIdx = (currentPage - 1) * perPage;
+    const endIdx = startIdx + perPage;
+    renderItems(currentItems.slice(startIdx, endIdx));
+    renderPagination();
+}
+
 export function renderItems(items) {
+    // Tidak perlu sort di sini, sudah di-loadItems
     const tbody = document.getElementById('items-table-body');
     const thead = tbody.parentElement.querySelector('thead');
     if (thead) {
@@ -74,6 +109,7 @@ export function renderItems(items) {
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sedang Aktif</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Dibuat</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
         `;
@@ -81,7 +117,7 @@ export function renderItems(items) {
     if (!items || items.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="10" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="11" class="px-6 py-4 text-center text-gray-500">
                     Tidak ada data item
                 </td>
             </tr>
@@ -99,6 +135,7 @@ export function renderItems(items) {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.ItemGroupName || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.IsActive === 'Y' || item.IsActive === true ? 'Y' : 'N'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(item.BalanceAmount || 0)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.dCreatedAt || item.CreatedAt || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button onclick="editItem('${item.Oid}')" class="text-primary hover:text-secondary mr-2">Edit</button>
                 <button onclick="deleteItem('${item.Oid}')" class="text-red-600 hover:text-red-900">Hapus</button>
@@ -154,8 +191,9 @@ export function renderPagination() {
 }
 
 export function filterItems() {
-    const search = document.getElementById('item-search').value.toLowerCase();
-    loadItems(1, search);
+    searchTerm = document.getElementById('item-search').value.toLowerCase();
+    currentPage = 1;
+    filterAndRenderItems();
 }
 
 export async function showItemModal(item = null) {
@@ -274,7 +312,7 @@ export async function handleItemSubmit(e) {
         if (response && (response.success !== false || response.data)) {
             showToast(oid ? 'Item berhasil diperbarui' : 'Item berhasil ditambahkan', 'success');
             hideItemModal();
-            loadItems();
+            loadItems(1, '', true);
         } else {
             throw new Error(response && response.message ? response.message : 'Failed to save item');
         }
@@ -302,7 +340,7 @@ export async function deleteItem(oid) {
         });
         if (response.success) {
             showToast('Item berhasil dihapus', 'success');
-            loadItems();
+            loadItems(1, '', true);
         } else {
             if (response && typeof response === 'object' && (response.message || response._status)) {
                 showToast('Gagal menghapus item: ' + (response.message || JSON.stringify(response)), 'error');
