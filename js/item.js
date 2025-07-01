@@ -210,9 +210,13 @@ export async function handleItemSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const oid = document.getElementById('item-oid').value;
+    // Ambil companyId dari localStorage agar sesuai best practice
+    const companyId = localStorage.getItem('company') || 'd3170153-6b16-4397-bf89-96533ee149ee';
+    // Oid tipe Product dari dokumentasi
+    const itemTypeOid = '3adfb47a-eab4-4d44-bde9-efae1bec8543';
     const itemData = {
-        Company: 'd3170153-6b16-4397-bf89-96533ee149ee',
-        ItemType: '3adfb47a-eab4-4d44-bde9-efae1bec8543',
+        Company: companyId,
+        ItemType: itemTypeOid,
         Code: formData.get('item-code'),
         Label: formData.get('item-title'),
         ItemGroup: '55692914-7402-4dd8-adec-40a823222b3e',
@@ -283,77 +287,10 @@ export async function deleteItem(oid) {
 }
 
 export async function loadItemMasters(companyId = null) {
-    // Ambil company id dari parameter jika ada, jika tidak dari localStorage
-    if (!companyId) {
-        try {
-            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            if (user && user.Company) companyId = user.Company;
-        } catch { }
-    }
-    // Hardcode companyId jika tetap tidak ada
-    if (!companyId) {
-        companyId = 'd3170153-6b16-4397-bf89-96533ee149ee';
-    }
-    let error = false;
-    // Item Group
-    const groupRes = await apiRequest(`https://app.elsoft.id/itemgroup?Module=item&Company=${companyId}`);
-    itemGroups = Array.isArray(groupRes.data) ? groupRes.data : [];
-    if (!itemGroups.length) error = true;
-    // Item Account Group
-    const accGroupRes = await apiRequest(`https://app.elsoft.id/itemaccountgroup?Module=item&Company=${companyId}`);
-    itemAccountGroups = Array.isArray(accGroupRes.data) ? accGroupRes.data : [];
-    if (!itemAccountGroups.length) error = true;
-    // Item Unit
-    const unitRes = await apiRequest(`https://app.elsoft.id/itemunit?Module=item&Company=${companyId}`);
-    itemUnits = Array.isArray(unitRes.data) ? unitRes.data : [];
-    if (!itemUnits.length) error = true;
-
-    // Dropdown element
-    const groupSelect = document.getElementById('item-group');
-    const accGroupSelect = document.getElementById('item-account-group');
-    const unitSelect = document.getElementById('item-unit');
-    const saveBtn = document.querySelector('#item-form button[type="submit"]');
-
-    // Helper untuk set error
-    function setDropdownError(select, msg) {
-        if (select) {
-            select.innerHTML = `<option value="">${msg}</option>`;
-            select.disabled = true;
-        }
-    }
-
-    // Set data jika sukses, jika gagal tampilkan error
-    if (!itemGroups.length) {
-        setDropdownError(groupSelect, 'Gagal load data group');
-        console.error('Gagal load Item Group:', groupRes);
-    } else if (groupSelect) {
-        groupSelect.disabled = false;
-        groupSelect.innerHTML = '<option value="">Pilih Group</option>' +
-            itemGroups.map(g => `<option value="${g.Oid}">${g.Label}</option>`).join('');
-    }
-    if (!itemAccountGroups.length) {
-        setDropdownError(accGroupSelect, 'Gagal load data account group');
-        console.error('Gagal load Item Account Group:', accGroupRes);
-    } else if (accGroupSelect) {
-        accGroupSelect.disabled = false;
-        accGroupSelect.innerHTML = '<option value="">Pilih Account Group</option>' +
-            itemAccountGroups.map(a => `<option value="${a.Oid}">${a.Label}</option>`).join('');
-    }
-    if (!itemUnits.length) {
-        setDropdownError(unitSelect, 'Gagal load data unit');
-        console.error('Gagal load Item Unit:', unitRes);
-    } else if (unitSelect) {
-        unitSelect.disabled = false;
-        unitSelect.innerHTML = '<option value="">Pilih Unit</option>' +
-            itemUnits.map(u => `<option value="${u.Oid}">${u.Label}</option>`).join('');
-    }
-
-    // Disable tombol save jika ada error
-    if (!itemGroups.length || !itemAccountGroups.length || !itemUnits.length) {
-        if (saveBtn) saveBtn.disabled = true;
-    } else {
-        if (saveBtn) saveBtn.disabled = false;
-    }
+    // Tidak perlu fetch data dari app.elsoft.id lagi
+    // Kosongkan fungsi ini atau isi dengan data statis jika perlu
+    // Atau biarkan dropdown tetap kosong
+    return;
 }
 
 export function populateItemDropdowns() {
