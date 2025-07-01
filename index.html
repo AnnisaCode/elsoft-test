@@ -37,12 +37,10 @@
     <!-- Navigation -->
     <nav id="navbar" class="bg-white shadow-sm border-b hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
-                        <h1 class="text-xl font-bold text-gray-900">SIS - Elsoft</h1>
-                    </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">SIS - Elsoft</h1>
+                    <div class="hidden sm:flex sm:ml-8 sm:space-x-8">
                         <a href="#item"
                             class="nav-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
                             Items
@@ -59,16 +57,24 @@
                         class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium">
                         Logout
                     </button>
+                    <button id="navbar-mobile-toggle"
+                        class="sm:hidden ml-2 p-2 rounded hover:bg-gray-100 focus:outline-none" aria-label="Open Menu"
+                        onclick="document.getElementById('navbar-mobile-menu').classList.toggle('hidden')">
+                        <svg class="h-6 w-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
         <!-- Mobile menu -->
-        <div class="sm:hidden">
+        <div id="navbar-mobile-menu" class="sm:hidden hidden bg-white border-t">
             <div class="pt-2 pb-3 space-y-1">
                 <a href="#item"
-                    class="nav-link-mobile bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 block px-3 py-2 text-base font-medium">Items</a>
+                    class="nav-link-mobile block px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Items</a>
                 <a href="#transaction"
-                    class="nav-link-mobile bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 block px-3 py-2 text-base font-medium">Transactions</a>
+                    class="nav-link-mobile block px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Transactions</a>
             </div>
         </div>
     </nav>
@@ -104,10 +110,10 @@
 
                     <div>
                         <button type="submit" id="login-btn"
-                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">
                             <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                                <svg class="h-5 w-5 text-primary-light group-hover:text-primary-dark"
-                                    fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="h-5 w-5 text-blue-200 group-hover:text-blue-300" fill="currentColor"
+                                    viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
                                         d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                                         clip-rule="evenodd"></path>
@@ -127,7 +133,7 @@
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-2xl font-bold text-gray-900">Master Item</h1>
                         <button onclick="showItemModal()"
-                            class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-md text-sm font-medium">
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
                             + Tambah Item
                         </button>
                     </div>
@@ -193,7 +199,7 @@
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-2xl font-bold text-gray-900">Stock Issue Transactions</h1>
                         <button onclick="showTransactionModal()"
-                            class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-md text-sm font-medium">
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
                             + Tambah Transaksi
                         </button>
                     </div>
@@ -355,7 +361,7 @@
                             Batal
                         </button>
                         <button type="submit"
-                            class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-md text-sm font-medium">
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
                             Simpan
                         </button>
                     </div>
