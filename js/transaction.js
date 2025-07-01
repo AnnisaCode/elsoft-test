@@ -240,12 +240,37 @@ export function hideTransactionModal() {
 export async function handleTransactionSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
+    // Ambil data user dari localStorage
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const companyId = user.Company || user.company || user.CompanyOid || 'd3170153-6b16-4397-bf89-96533ee149ee';
+    const companyName = user.CompanyName || user.company_name || user.username || '';
+    const code = document.getElementById('transaction-code').value;
+    const date = formData.get('transaction-date') || document.getElementById('transaction-date').value;
+    const selectedAccountOid = document.getElementById('transaction-account').value;
+    const note = document.getElementById('transaction-note').value;
+    // Cari AccountName dari masterAccounts
+    let accountName = '';
+    if (selectedAccountOid) {
+        const acc = masterAccounts.find(a => a.Oid === selectedAccountOid);
+        if (acc) accountName = acc.Name;
+    }
+    // Tambahkan (CompanyName) di belakang AccountName jika ada
+    if (accountName && companyName) {
+        accountName = accountName + ' (' + companyName + ')';
+    }
+    // Validasi wajib isi
+    if (!companyId || !companyName || !code || !date || !selectedAccountOid || !accountName) {
+        showToast('Semua field wajib diisi dan valid!', 'error');
+        return;
+    }
     const transactionData = {
-        Company: document.getElementById('transaction-company').value,
-        Code: document.getElementById('transaction-code').value,
-        Date: formData.get('transaction-date') || document.getElementById('transaction-date').value,
-        Account: document.getElementById('transaction-account').value,
-        Note: document.getElementById('transaction-note').value
+        Company: companyId,
+        CompanyName: companyName,
+        Code: code,
+        Date: date,
+        Account: selectedAccountOid,
+        AccountName: accountName,
+        Note: note
     };
     const oid = document.getElementById('transaction-oid').value;
     try {
@@ -261,7 +286,7 @@ export async function handleTransactionSubmit(e) {
                 body: JSON.stringify(transactionData)
             });
         }
-        if (response.success) {
+        if ((response && response.success) || response.Oid) {
             showToast(oid ? 'Transaksi berhasil diperbarui' : 'Transaksi berhasil ditambahkan', 'success');
             hideTransactionModal();
             loadTransactions();
