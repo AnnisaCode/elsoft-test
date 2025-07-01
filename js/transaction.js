@@ -194,7 +194,7 @@ export function filterTransactions() {
     filterAndRenderTransactions();
 }
 
-export async function loadMasterAccounts() {
+export async function loadMasterAccounts(selectedOid = '') {
     const token = localStorage.getItem('authToken');
     const headers = { 'Authorization': `Bearer ${token}` };
     try {
@@ -203,22 +203,19 @@ export async function loadMasterAccounts() {
         masterAccounts = Array.isArray(data) ? data : (data.data || []);
         const select = document.getElementById('transaction-account');
         if (select) {
-            // Filter hanya yang Name dan Oid tidak kosong/null
             let filtered = masterAccounts.filter(acc => acc.Name && acc.Oid);
-            // Cari index akun dengan Oid khusus
             const specialOid = 'bc54db2f-4b44-4401-be7d-31c21effa9c1';
             const specialIdx = filtered.findIndex(acc => acc.Oid === specialOid);
             let result = [];
             if (specialIdx !== -1) {
-                // Ambil 4 data pertama (tanpa specialOid), lalu tambahkan specialOid (jika belum masuk)
                 result = filtered.filter(acc => acc.Oid !== specialOid).slice(0, 4);
                 result.push(filtered[specialIdx]);
             } else {
-                // Ambil 5 data pertama
                 result = filtered.slice(0, 5);
             }
             select.innerHTML = '<option value="">Pilih Akun</option>' +
                 result.map(acc => `<option value="${acc.Oid}">${acc.Name}</option>`).join('');
+            if (selectedOid) select.value = selectedOid;
         }
     } catch (err) {
         showToast('Gagal memuat data akun', 'error');
@@ -226,7 +223,6 @@ export async function loadMasterAccounts() {
 }
 
 export function showTransactionModal(transaction = null) {
-    loadMasterAccounts();
     const modal = document.getElementById('transaction-modal');
     const title = document.getElementById('transaction-modal-title');
     if (transaction) {
@@ -235,23 +231,23 @@ export function showTransactionModal(transaction = null) {
         document.getElementById('transaction-code').value = transaction.Code || '';
         document.getElementById('transaction-date').value = transaction.Date ? transaction.Date.split('T')[0] : '';
         document.getElementById('transaction-company').value = transaction.CompanyName || '';
-        document.getElementById('transaction-account').value = transaction.Account || '';
         document.getElementById('transaction-note').value = transaction.Note || '';
+        loadMasterAccounts(transaction.Account);
     } else {
         title.textContent = 'Tambah Transaksi';
         document.getElementById('transaction-form').reset();
         document.getElementById('transaction-oid').value = '';
         document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
-        // Set default CompanyName dari localStorage
         let companyName = '';
         try {
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             companyName = user.CompanyName || user.company_name || user.username || '';
         } catch { }
         document.getElementById('transaction-company').value = companyName;
-        document.getElementById('transaction-code').value = '';
+        document.getElementById('transaction-code').value = '<<AutoGenerate>>';
         document.getElementById('transaction-account').value = '';
         document.getElementById('transaction-note').value = '';
+        loadMasterAccounts();
     }
     modal.classList.remove('hidden');
 }
@@ -306,7 +302,13 @@ export async function handleTransactionSubmit(e) {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const companyId = user.Company || user.company || user.CompanyOid || 'd3170153-6b16-4397-bf89-96533ee149ee';
     const companyName = user.CompanyName || user.company_name || user.username || '';
-    const code = document.getElementById('transaction-code').value;
+    const oid = document.getElementById('transaction-oid').value;
+    let code = document.getElementById('transaction-code').value;
+    if (oid && code === '<<AutoGenerate>>') {
+        // Cari kode asli dari cache
+        const old = allTransactionsCache ? allTransactionsCache.find(t => t.Oid === oid) : null;
+        if (old && old.Code) code = old.Code;
+    }
     const date = formData.get('transaction-date') || document.getElementById('transaction-date').value;
     const selectedAccountOid = document.getElementById('transaction-account').value;
     const note = document.getElementById('transaction-note').value;
@@ -325,7 +327,6 @@ export async function handleTransactionSubmit(e) {
         showToast('Semua field wajib diisi dan valid!', 'error');
         return;
     }
-    const oid = document.getElementById('transaction-oid').value;
     // Siapkan status dan statusName
     let status = '';
     let statusName = '';
