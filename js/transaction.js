@@ -11,6 +11,10 @@ export let searchTransactionTerm = '';
 export let allTransactionsCache = null;
 export let masterAccounts = [];
 
+// Master data untuk detail
+let masterDetailItems = [];
+let masterDetailUnits = [];
+
 export async function loadTransactions(page = 1, search = '', forceReload = false) {
     currentTransactionPage = page;
     searchTransactionTerm = search;
@@ -437,11 +441,16 @@ export async function openTransactionDetailDrawer(oid) {
     drawer.classList.remove('hidden');
     setTimeout(() => drawer.classList.remove('translate-x-full'), 10);
 
+    // Fetch master item/unit jika belum ada
+    if (!masterDetailItems.length || !masterDetailUnits.length) {
+        await loadMasterDetailItemsAndUnits();
+    }
+
     // Fetch parent
     let parent = null;
     try {
         const token = localStorage.getItem('authToken');
-        const res = await fetch(`https://api-app.elsoft.id/admin/api/v1/stockissue/${oid}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch(`https://api-app.elsoft.id/admin/api/v1/stockissue/${oid}?_t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}` } });
         parent = await res.json();
     } catch { }
     if (parent) {
@@ -461,12 +470,47 @@ export async function openTransactionDetailDrawer(oid) {
                     <td class="px-4 py-2 text-center">${item.Quantity || '-'}</td>
                     <td class="px-4 py-2">${item.ItemUnitName || '-'}</td>
                     <td class="px-4 py-2">${item.Note || '-'}</td>
-                    <td class="px-4 py-2 text-center">-</td>
+                    <td class="px-4 py-2 text-center whitespace-nowrap text-sm font-medium">
+                        <button class="btn-detail-edit text-primary hover:text-secondary mr-2 font-medium" data-oid="${item.Oid}" data-parent="${oid}">Edit</button>
+                        <button class="btn-detail-delete text-red-600 hover:text-red-900 font-medium" data-oid="${item.Oid}" data-parent="${oid}">Hapus</button>
+                    </td>
                 </tr>
             `).join('');
         } else {
             document.getElementById('transaction-detail-items-table').innerHTML = '<tr><td colspan="6" class="text-center text-gray-400">No data</td></tr>';
         }
+        // Event listener Edit/Hapus
+        setTimeout(() => {
+            document.querySelectorAll('.btn-detail-edit').forEach(btn => {
+                btn.onclick = () => {
+                    const oid = btn.getAttribute('data-oid');
+                    const parentOid = btn.getAttribute('data-parent');
+                    const detail = (parent.Details || []).find(d => d.Oid === oid);
+                    showDetailItemModal('edit', parentOid, detail);
+                };
+            });
+            document.querySelectorAll('.btn-detail-delete').forEach(btn => {
+                btn.onclick = async () => {
+                    const oid = btn.getAttribute('data-oid');
+                    const parentOid = btn.getAttribute('data-parent');
+                    if (!confirm('Yakin ingin menghapus detail ini?')) return;
+                    const token = localStorage.getItem('authToken');
+                    await fetch(`https://api-app.elsoft.id/admin/api/v1/stockissue/detail/${oid}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    // Tutup drawer lalu buka ulang agar data pasti fresh
+                    const drawer = document.getElementById('transaction-detail-drawer');
+                    if (drawer) {
+                        drawer.classList.add('translate-x-full');
+                        setTimeout(() => {
+                            drawer.classList.add('hidden');
+                            openTransactionDetailDrawer(parentOid);
+                        }, 350);
+                    }
+                };
+            });
+        }, 100);
     } else {
         document.getElementById('transaction-detail-items-table').innerHTML = '<tr><td colspan="6" class="text-center text-gray-400">No data</td></tr>';
     }
@@ -497,12 +541,12 @@ function showDetailItemModal(mode, parentOid, detail = null) {
     document.getElementById('detail-item-oid').value = detail && detail.Oid ? detail.Oid : '';
     document.getElementById('detail-qty').value = detail && detail.Quantity ? detail.Quantity : 1;
     document.getElementById('detail-note').value = detail && detail.Note ? detail.Note : '';
-    // Dummy dropdown
+    // Dropdown dari master
     const itemSelect = document.getElementById('detail-item');
-    itemSelect.innerHTML = '<option value="item1">Item 1</option><option value="item2">Item 2</option>';
+    itemSelect.innerHTML = masterDetailItems.map(i => `<option value="${i.Oid}">${i.Label || i.Name || '-'}</option>`).join('');
     itemSelect.value = detail && detail.Item ? detail.Item : '';
     const unitSelect = document.getElementById('detail-unit');
-    unitSelect.innerHTML = '<option value="unit1">PCS</option><option value="unit2">BOX</option>';
+    unitSelect.innerHTML = masterDetailUnits.map(u => `<option value="${u.Oid}">${u.Name || u.Label}</option>`).join('');
     unitSelect.value = detail && detail.ItemUnit ? detail.ItemUnit : '';
     title.textContent = mode === 'add' ? 'Tambah Detail' : 'Edit Detail';
     modal.classList.remove('hidden');
@@ -523,8 +567,10 @@ async function handleDetailItemSubmit(e) {
     const parentOid = form.dataset.parentOid;
     const mode = form.dataset.mode;
     const item = document.getElementById('detail-item').value;
+    const itemName = document.getElementById('detail-item').selectedOptions[0]?.text || '';
     const qty = document.getElementById('detail-qty').value;
     const unit = document.getElementById('detail-unit').value;
+    const unitName = document.getElementById('detail-unit').selectedOptions[0]?.text || '';
     const note = document.getElementById('detail-note').value;
     const oid = document.getElementById('detail-item-oid').value;
     if (!item || !qty || !unit) return alert('Semua field wajib diisi!');
@@ -532,8 +578,10 @@ async function handleDetailItemSubmit(e) {
     let url = `https://api-app.elsoft.id/admin/api/v1/stockissue/detail?StockIssue=${parentOid}`;
     if (mode === 'add') url += '&Oid=NONE';
     const body = {
+        index: null,
         Item: item,
-        Quantity: qty,
+        ItemName: itemName,
+        Quantity: qty.toString(),
         ItemUnit: unit,
         ItemUnitName: unitName,
         Note: note || null
@@ -546,8 +594,15 @@ async function handleDetailItemSubmit(e) {
             body: JSON.stringify(body)
         });
         closeDetailItemModal();
-        // Refresh detail table
-        if (window.openTransactionDetailDrawer) openTransactionDetailDrawer(parentOid);
+        // Tutup drawer lalu buka ulang agar data pasti fresh
+        const drawer = document.getElementById('transaction-detail-drawer');
+        if (drawer) {
+            drawer.classList.add('translate-x-full');
+            setTimeout(() => {
+                drawer.classList.add('hidden');
+                openTransactionDetailDrawer(parentOid);
+            }, 350);
+        }
     } catch { }
 }
 
@@ -598,4 +653,15 @@ if (typeof window !== 'undefined') {
             });
         }, 500);
     });
+}
+
+async function loadMasterDetailItemsAndUnits() {
+    const token = localStorage.getItem('authToken');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    // Item
+    const itemRes = await fetch('https://api-app.elsoft.id/admin/api/v1/data/item', { headers });
+    masterDetailItems = await itemRes.json();
+    // Unit
+    const unitRes = await fetch('https://api-app.elsoft.id/admin/api/v1/data/itemunit', { headers });
+    masterDetailUnits = await unitRes.json();
 } 
