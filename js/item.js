@@ -164,24 +164,24 @@ export async function showItemModal(item = null) {
     document.getElementById('item-company').value = 'testcase'; // atau ambil dari currentUser
     document.getElementById('item-type').value = 'Product';
     if (item) {
+        // EDIT MODE: render input readonly
+        renderItemModalFields(true, item.ItemGroupName, item.ItemAccountGroupName, item.ItemUnitName);
         title.textContent = 'Edit Item';
         document.getElementById('item-oid').value = item.Oid;
         document.getElementById('item-code').value = item.Code || '<<Auto>>';
         document.getElementById('item-title').value = item.Label || '';
-        document.getElementById('item-group').value = item.ItemGroupName || '-';
-        document.getElementById('item-account-group').value = item.ItemAccountGroupName || '-';
-        document.getElementById('item-unit').value = item.ItemUnitName || '-';
         document.getElementById('item-active').checked = item.IsActive === 'Y' || item.IsActive === true || item.IsActive === 'true';
     } else {
+        // TAMBAH MODE: render select
+        renderItemModalFields(false);
         title.textContent = 'Tambah Item';
         document.getElementById('item-form').reset();
         document.getElementById('item-oid').value = '';
         document.getElementById('item-code').value = '<<Auto>>';
         document.getElementById('item-title').value = '';
-        document.getElementById('item-group').value = '';
-        document.getElementById('item-account-group').value = '';
-        document.getElementById('item-unit').value = '';
         document.getElementById('item-active').checked = true;
+        // Load dropdown data
+        await loadItemMasters();
     }
     modal.classList.remove('hidden');
 }

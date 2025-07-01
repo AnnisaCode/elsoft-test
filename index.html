@@ -292,24 +292,9 @@
                             <input type="text" id="item-title" required
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md">
                         </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Item Group<span
-                                    class="text-red-500">*</span></label>
-                            <select id="item-group" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"></select>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Item Account Group<span
-                                    class="text-red-500">*</span></label>
-                            <select id="item-account-group" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"></select>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Item Unit<span
-                                    class="text-red-500">*</span></label>
-                            <select id="item-unit" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"></select>
-                        </div>
+                        <div id="item-group-field"></div>
+                        <div id="item-account-group-field"></div>
+                        <div id="item-unit-field"></div>
                         <div class="flex items-center mt-6">
                             <input type="checkbox" id="item-active" class="mr-2">
                             <label for="item-active" class="text-gray-700 text-sm font-bold">Is Active</label>
@@ -371,6 +356,20 @@
     </div>
 
     <script type="module" src="main.js"></script>
+    <script>
+        // Render ulang field group/account/unit sesuai mode tambah/edit
+        function renderItemModalFields(isEdit, group, accGroup, unit) {
+            document.getElementById('item-group-field').innerHTML = isEdit
+                ? `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Group*</label><input type='text' id='item-group' class='w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100' value='${group || ''}' readonly>`
+                : `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Group<span class='text-red-500'>*</span></label><select id='item-group' required class='w-full px-3 py-2 border border-gray-300 rounded-md'></select>`;
+            document.getElementById('item-account-group-field').innerHTML = isEdit
+                ? `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Account Group*</label><input type='text' id='item-account-group' class='w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100' value='${accGroup || ''}' readonly>`
+                : `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Account Group<span class='text-red-500'>*</span></label><select id='item-account-group' required class='w-full px-3 py-2 border border-gray-300 rounded-md'></select>`;
+            document.getElementById('item-unit-field').innerHTML = isEdit
+                ? `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Unit*</label><input type='text' id='item-unit' class='w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100' value='${unit || ''}' readonly>`
+                : `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Unit<span class='text-red-500'>*</span></label><select id='item-unit' required class='w-full px-3 py-2 border border-gray-300 rounded-md'></select>`;
+        }
+    </script>
 </body>
 
 </html>
