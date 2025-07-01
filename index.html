@@ -258,40 +258,62 @@
 
     <!-- Item Modal -->
     <div id="item-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-40">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-gray-900 mb-4" id="item-modal-title">Tambah Item</h3>
                 <form id="item-form">
                     <input type="hidden" id="item-oid">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Nama Item</label>
-                        <input type="text" id="item-name" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Company</label>
+                            <input type="text" id="item-company"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Item Type</label>
+                            <input type="text" id="item-type"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Code<span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" id="item-code" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Title<span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" id="item-title" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Item Group<span
+                                    class="text-red-500">*</span></label>
+                            <select id="item-group" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md"></select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Item Account Group<span
+                                    class="text-red-500">*</span></label>
+                            <select id="item-account-group" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md"></select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Item Unit<span
+                                    class="text-red-500">*</span></label>
+                            <select id="item-unit" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md"></select>
+                        </div>
+                        <div class="flex items-center mt-6">
+                            <input type="checkbox" id="item-active" class="mr-2">
+                            <label for="item-active" class="text-gray-700 text-sm font-bold">Is Active</label>
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Kode Item</label>
-                        <input type="text" id="item-code" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Kategori</label>
-                        <input type="text" id="item-category"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Harga</label>
-                        <input type="number" id="item-price" step="0.01"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="flex justify-end space-x-2">
+                    <div class="flex justify-between mt-6">
                         <button type="button" onclick="hideItemModal()"
-                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium">
-                            Batal
-                        </button>
+                            class="bg-orange-400 hover:bg-orange-500 text-white px-6 py-2 rounded-md text-sm font-medium">BACK</button>
                         <button type="submit"
-                            class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-md text-sm font-medium">
-                            Simpan
-                        </button>
+                            class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium">Save</button>
                     </div>
                 </form>
             </div>
