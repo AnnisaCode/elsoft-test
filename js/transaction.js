@@ -9,6 +9,7 @@ export let totalTransactionData = 0;
 export const perPageTransaction = 20;
 export let searchTransactionTerm = '';
 export let allTransactionsCache = null;
+export let masterAccounts = [];
 
 export async function loadTransactions(page = 1, search = '', forceReload = false) {
     currentTransactionPage = page;
@@ -173,7 +174,39 @@ export function filterTransactions() {
     filterAndRenderTransactions();
 }
 
+export async function loadMasterAccounts() {
+    const token = localStorage.getItem('authToken');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    try {
+        const res = await fetch('https://api-app.elsoft.id/admin/api/v1/master/account', { headers });
+        const data = await res.json();
+        masterAccounts = Array.isArray(data) ? data : (data.data || []);
+        const select = document.getElementById('transaction-account');
+        if (select) {
+            // Filter hanya yang Name dan Oid tidak kosong/null
+            let filtered = masterAccounts.filter(acc => acc.Name && acc.Oid);
+            // Cari index akun dengan Oid khusus
+            const specialOid = 'bc54db2f-4b44-4401-be7d-31c21effa9c1';
+            const specialIdx = filtered.findIndex(acc => acc.Oid === specialOid);
+            let result = [];
+            if (specialIdx !== -1) {
+                // Ambil 4 data pertama (tanpa specialOid), lalu tambahkan specialOid (jika belum masuk)
+                result = filtered.filter(acc => acc.Oid !== specialOid).slice(0, 4);
+                result.push(filtered[specialIdx]);
+            } else {
+                // Ambil 5 data pertama
+                result = filtered.slice(0, 5);
+            }
+            select.innerHTML = '<option value="">Pilih Akun</option>' +
+                result.map(acc => `<option value="${acc.Oid}">${acc.Name}</option>`).join('');
+        }
+    } catch (err) {
+        showToast('Gagal memuat data akun', 'error');
+    }
+}
+
 export function showTransactionModal(transaction = null) {
+    loadMasterAccounts();
     const modal = document.getElementById('transaction-modal');
     const title = document.getElementById('transaction-modal-title');
     if (transaction) {
@@ -208,10 +241,11 @@ export async function handleTransactionSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const transactionData = {
-        docno: formData.get('transaction-docno') || document.getElementById('transaction-docno').value,
-        date: formData.get('transaction-date') || document.getElementById('transaction-date').value,
-        customer: formData.get('transaction-customer') || document.getElementById('transaction-customer').value,
-        description: formData.get('transaction-description') || document.getElementById('transaction-description').value
+        Company: document.getElementById('transaction-company').value,
+        Code: document.getElementById('transaction-code').value,
+        Date: formData.get('transaction-date') || document.getElementById('transaction-date').value,
+        Account: document.getElementById('transaction-account').value,
+        Note: document.getElementById('transaction-note').value
     };
     const oid = document.getElementById('transaction-oid').value;
     try {
