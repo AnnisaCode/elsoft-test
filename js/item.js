@@ -199,29 +199,16 @@ export function filterItems() {
 export async function showItemModal(item = null) {
     const modal = document.getElementById('item-modal');
     const title = document.getElementById('item-modal-title');
-    document.getElementById('item-company').value = 'testcase'; // atau ambil dari currentUser
-    document.getElementById('item-type').value = 'Product';
     if (item) {
         // EDIT MODE: mapping Oid jika perlu
         let groupOid = item.ItemGroup;
         let accGroupOid = item.ItemAccountGroup;
         let unitOid = item.ItemUnit;
-        // Jika Oid kosong, mapping dari label
-        if (!groupOid && item.ItemGroupName) {
-            const found = itemGroups.find(g => g.Label === item.ItemGroupName);
-            if (found) groupOid = found.Oid;
-        }
-        if (!accGroupOid && item.ItemAccountGroupName) {
-            const found = itemAccountGroups.find(a => a.Label === item.ItemAccountGroupName);
-            if (found) accGroupOid = found.Oid;
-        }
-        if (!unitOid && item.ItemUnitName) {
-            const found = itemUnits.find(u => u.Label === item.ItemUnitName);
-            if (found) unitOid = found.Oid;
-        }
         renderItemModalFields(true, item.ItemGroupName, item.ItemAccountGroupName, item.ItemUnitName, groupOid, accGroupOid, unitOid);
         title.textContent = 'Edit Item';
         document.getElementById('item-oid').value = item.Oid;
+        document.getElementById('item-company').value = item.CompanyName || '';
+        document.getElementById('item-type').value = item.ItemTypeName || 'Product';
         document.getElementById('item-code').value = item.Code || '<<Auto>>';
         document.getElementById('item-title').value = item.Label || '';
         document.getElementById('item-active').checked = item.IsActive === 'Y' || item.IsActive === true || item.IsActive === 'true';
@@ -231,12 +218,27 @@ export async function showItemModal(item = null) {
         title.textContent = 'Tambah Item';
         document.getElementById('item-form').reset();
         document.getElementById('item-oid').value = '';
+        // Ambil CompanyName dari currentUser di localStorage
+        let companyName = '';
+        try {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            companyName = user.CompanyName || user.company_name || user.username || '';
+        } catch { }
+        document.getElementById('item-company').value = companyName;
+        document.getElementById('item-type').value = 'Product';
         document.getElementById('item-code').value = '<<Auto>>';
         document.getElementById('item-title').value = '';
         document.getElementById('item-active').checked = true;
-        // Load dropdown data
         await loadItemMasters();
     }
+    // Pastikan readonly dan abu-abu
+    ['item-company', 'item-type', 'item-code'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.setAttribute('readonly', 'readonly');
+            el.classList.add('bg-gray-100');
+        }
+    });
     modal.classList.remove('hidden');
 }
 
