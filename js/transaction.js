@@ -451,34 +451,22 @@ export async function openTransactionDetailDrawer(oid) {
         document.getElementById('detail-account').textContent = parent.AccountName || '-';
         document.getElementById('detail-status').textContent = parent.StatusName || '-';
         document.getElementById('detail-note').textContent = parent.Note || '-';
-    }
-    // Fetch child
-    let items = [];
-    try {
-        const token = localStorage.getItem('authToken');
-        const res = await fetch(`https://api-app.elsoft.id/admin/api/v1/stockissue/detail?StockIssue=${oid}`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (res.ok) {
-            const data = await res.json();
-            items = Array.isArray(data) ? data : (data.data || []);
-        } else if (res.status === 404) {
-            // Tidak ada data detail, biarkan items kosong, jangan panggil res.json()
+        // Render tabel detail dari parent.Details
+        let items = Array.isArray(parent.Details) ? parent.Details : [];
+        if (items.length > 0) {
+            document.getElementById('transaction-detail-items-table').innerHTML = items.map((item, idx) => `
+                <tr>
+                    <td class="px-4 py-2 text-center">${idx + 1}</td>
+                    <td class="px-4 py-2">${item.ItemName || '-'}</td>
+                    <td class="px-4 py-2 text-center">${item.Quantity || '-'}</td>
+                    <td class="px-4 py-2">${item.ItemUnitName || '-'}</td>
+                    <td class="px-4 py-2">${item.Note || '-'}</td>
+                    <td class="px-4 py-2 text-center">-</td>
+                </tr>
+            `).join('');
         } else {
-            // Error lain, jangan tampilkan apapun ke console
+            document.getElementById('transaction-detail-items-table').innerHTML = '<tr><td colspan="6" class="text-center text-gray-400">No data</td></tr>';
         }
-    } catch (e) {
-        // Jangan tampilkan error apapun ke console
-    }
-    if (items.length > 0) {
-        document.getElementById('transaction-detail-items-table').innerHTML = items.map((item, idx) => `
-            <tr>
-                <td class="px-4 py-2 text-center">${idx + 1}</td>
-                <td class="px-4 py-2">${item.ItemName || '-'}</td>
-                <td class="px-4 py-2 text-center">${item.Quantity || '-'}</td>
-                <td class="px-4 py-2">${item.ItemUnitName || '-'}</td>
-                <td class="px-4 py-2">${item.Note || '-'}</td>
-                <td class="px-4 py-2 text-center">-</td>
-            </tr>
-        `).join('');
     } else {
         document.getElementById('transaction-detail-items-table').innerHTML = '<tr><td colspan="6" class="text-center text-gray-400">No data</td></tr>';
     }
@@ -547,7 +535,8 @@ async function handleDetailItemSubmit(e) {
         Item: item,
         Quantity: qty,
         ItemUnit: unit,
-        Note: note
+        ItemUnitName: unitName,
+        Note: note || null
     };
     if (mode === 'edit') body.Oid = oid;
     try {
