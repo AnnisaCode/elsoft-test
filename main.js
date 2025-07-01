@@ -375,15 +375,21 @@ async function apiRequest(url, options = {}) {
 
     try {
         const response = await fetch(url, mergedOptions);
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'API request failed');
+        if (response.status === 204) {
+            // No Content, return success langsung
+            return { success: true, _status: 204, _ok: true };
         }
-
+        let data;
+        try {
+            data = await response.json();
+        } catch (e) {
+            data = { message: 'Invalid JSON response', parseError: e.message };
+        }
+        data._status = response.status;
+        data._ok = response.ok;
         return data;
     } catch (error) {
-        throw error;
+        return { message: error.message, _status: 0, _ok: false };
     }
 }
 
@@ -627,23 +633,35 @@ async function editItem(oid) {
 }
 
 async function deleteItem(oid) {
+    console.log('Delete Oid:', oid); // Debug Oid
     if (!confirm('Yakin ingin menghapus item ini?')) {
         return;
     }
-
     try {
-        const response = await apiRequest(`${API_CONFIG.APP_BASE}/data/item/delete?Oid=${oid}`, {
+        // Kirim DELETE ke endpoint /data/item/{Oid} tanpa body
+        const response = await apiRequest(`${API_CONFIG.APP_BASE}/data/item/${oid}`, {
             method: 'DELETE'
         });
-
         if (response.success) {
             showToast('Item berhasil dihapus', 'success');
             loadItems();
         } else {
-            throw new Error(response.message || 'Failed to delete item');
+            // Tampilkan error detail dari response jika ada
+            if (response && typeof response === 'object' && (response.message || response._status)) {
+                console.error('Delete Error Detail:', response);
+                showToast('Gagal menghapus item: ' + (response.message || JSON.stringify(response)), 'error');
+            } else {
+                showToast('Gagal menghapus item: ' + response, 'error');
+            }
         }
     } catch (error) {
-        showToast('Gagal menghapus item: ' + error.message, 'error');
+        // Tampilkan error detail dari response jika ada
+        if (error && typeof error === 'object' && (error.message || error._status)) {
+            console.error('Delete Error Detail:', error);
+            showToast('Gagal menghapus item: ' + (error.message || JSON.stringify(error)), 'error');
+        } else {
+            showToast('Gagal menghapus item: ' + error, 'error');
+        }
     }
 }
 
