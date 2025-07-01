@@ -21,6 +21,20 @@ export function formatDate(dateString) {
     }
 }
 
+export function formatDateShort(dateString) {
+    if (!dateString) return '-';
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    } catch (error) {
+        return dateString;
+    }
+}
+
 export function getStatusClass(status) {
     switch (status?.toLowerCase()) {
         case 'completed':

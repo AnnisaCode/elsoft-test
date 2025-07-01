@@ -1,5 +1,5 @@
 import { apiRequest } from './api.js';
-import { formatCurrency, showToast } from './utils.js';
+import { formatCurrency, showToast, formatDateShort } from './utils.js';
 
 // Variabel global terkait item
 export let currentItems = [];
@@ -135,7 +135,7 @@ export function renderItems(items) {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.ItemGroupName || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.IsActive === 'Y' || item.IsActive === true ? 'Y' : 'N'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(item.BalanceAmount || 0)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.dCreatedAt || item.CreatedAt || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDateShort(item.dCreatedAt || item.CreatedAt) || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button onclick="editItem('${item.Oid}')" class="text-primary hover:text-secondary mr-2">Edit</button>
                 <button onclick="deleteItem('${item.Oid}')" class="text-red-600 hover:text-red-900">Hapus</button>

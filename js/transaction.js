@@ -1,5 +1,5 @@
 import { apiRequest } from './api.js';
-import { formatCurrency, formatDate, getStatusClass, showToast } from './utils.js';
+import { formatCurrency, formatDate, formatDateShort, getStatusClass, showToast } from './utils.js';
 
 // Variabel global terkait transaksi
 export let currentTransactions = [];
@@ -51,7 +51,7 @@ export function renderTransactions(transactions) {
     tbody.innerHTML = transactions.map(transaction => `
         <tr class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.docno || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDate(transaction.date)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDateShort(transaction.date)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.customer || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(transaction.total)}</td>
             <td class="px-6 py-4 whitespace-nowrap">
