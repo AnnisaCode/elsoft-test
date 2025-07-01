@@ -212,11 +212,11 @@ export function showTransactionModal(transaction = null) {
     if (transaction) {
         title.textContent = 'Edit Transaksi';
         document.getElementById('transaction-oid').value = transaction.Oid;
-        document.getElementById('transaction-docno').value = transaction.docno || '';
-        document.getElementById('transaction-date').value = transaction.date ? transaction.date.split('T')[0] : '';
-        document.getElementById('transaction-customer').value = transaction.customer || '';
-        document.getElementById('transaction-description').value = transaction.description || '';
+        document.getElementById('transaction-code').value = transaction.Code || '';
+        document.getElementById('transaction-date').value = transaction.Date ? transaction.Date.split('T')[0] : '';
         document.getElementById('transaction-company').value = transaction.CompanyName || '';
+        document.getElementById('transaction-account').value = transaction.Account || '';
+        document.getElementById('transaction-note').value = transaction.Note || '';
     } else {
         title.textContent = 'Tambah Transaksi';
         document.getElementById('transaction-form').reset();
@@ -229,6 +229,9 @@ export function showTransactionModal(transaction = null) {
             companyName = user.CompanyName || user.company_name || user.username || '';
         } catch { }
         document.getElementById('transaction-company').value = companyName;
+        document.getElementById('transaction-code').value = '';
+        document.getElementById('transaction-account').value = '';
+        document.getElementById('transaction-note').value = '';
     }
     modal.classList.remove('hidden');
 }
@@ -302,6 +305,18 @@ export async function handleTransactionSubmit(e) {
         showToast('Semua field wajib diisi dan valid!', 'error');
         return;
     }
+    const oid = document.getElementById('transaction-oid').value;
+    // Siapkan status dan statusName
+    let status = '';
+    let statusName = '';
+    if (oid) {
+        // Cari data transaksi lama dari cache
+        const old = allTransactionsCache ? allTransactionsCache.find(t => t.Oid === oid) : null;
+        if (old) {
+            status = old.Status || '';
+            statusName = old.StatusName || '';
+        }
+    }
     const transactionData = {
         Company: companyId,
         CompanyName: companyName,
@@ -311,7 +326,11 @@ export async function handleTransactionSubmit(e) {
         AccountName: accountName,
         Note: note
     };
-    const oid = document.getElementById('transaction-oid').value;
+    if (oid) {
+        transactionData.Oid = oid;
+        transactionData.Status = status;
+        transactionData.StatusName = statusName;
+    }
     try {
         let response;
         let newOrEditedTransaction = null;
