@@ -1,0 +1,1575 @@
+{
+    "CreatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+    "UpdatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+    "CreatedAt": "2025-07-02 00:17:08",
+    "UpdatedAt": "2025-07-02 02:23:46",
+    "Oid": "59735f75-9f9c-4916-b58a-55414ab0206f",
+    "Company": "d3170153-6b16-4397-bf89-96533ee149ee",
+    "CreatedAtUTC": "2025-07-01T17:17:08.000000Z",
+    "UpdatedAtUTC": "2025-07-01T19:23:46.000000Z",
+    "OptimisticLockField": null,
+    "GCRecord": null,
+    "Code": "0701ZOUB",
+    "Requestor": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+    "Date": "2025-07-01",
+    "Note": "A note again",
+    "Department": null,
+    "Status": "09128d8c-a364-4dc7-bd3b-a2d15d8fefc5",
+    "Warehouse": "9ec7beb8-d17d-47a6-bbb2-5cd0723bfcc7",
+    "Requestor1": null,
+    "Requestor2": null,
+    "Requestor3": null,
+    "FeaturedFile": null,
+    "FeaturedImage": null,
+    "FeaturedComment": null,
+    "FeaturedApproved": null,
+    "Revision": null,
+    "SystemStatus": null,
+    "SystemStatusDate": null,
+    "SystemNote": null,
+    "TruckingPrimeMover": null,
+    "TotalAmount": "64000.0000",
+    "TotalAmountWording": "Fifty Thousand",
+    "IsTempProcessOnly": 0,
+    "Account": "72c6030c-fbc7-4b4f-81cc-75f696cbbe33",
+    "DetailItemDescriptionNote": "Aqua Mini (1.00 x 5,000.00);\nItem A (1.00);\n000001 - Fodder (1.00 x 9,000.00);\nAyam goreng (1.00 x 50,000.00);",
+    "User": null,
+    "BillingCustomerJob": null,
+    "IsExecuteError": 0,
+    "CompanyImage": "https:\/\/elsoftcdn.s3.ap-southeast-1.amazonaws.com\/public\/logo-elsoft.png",
+    "CompanyFullName": "testcase",
+    "CompanyFullAddress": "testcase",
+    "ParamCount": {
+        "Approvals": 0,
+        "Revision": 0,
+        "Bug": null,
+        "StatusLogs": 0,
+        "Files": 0
+    },
+    "WarehouseName": "DEFAULT",
+    "AccountName": "000802 - Bank BRI",
+    "RequestorName": "testcase",
+    "CompanyName": "testcase",
+    "StatusName": "Entry",
+    "CreatedByName": "testcase",
+    "UpdatedByName": "testcase",
+    "Details": [
+        {
+            "CreatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+            "UpdatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+            "CreatedAt": "2025-07-02 01:32:26",
+            "UpdatedAt": "2025-07-02 01:32:26",
+            "Oid": "4c074f42-a56c-493b-9ae9-9b4376dfa49e",
+            "Company": "d3170153-6b16-4397-bf89-96533ee149ee",
+            "CreatedAtUTC": "2025-07-01T18:32:26.000000Z",
+            "UpdatedAtUTC": "2025-07-01T18:32:26.000000Z",
+            "OptimisticLockField": null,
+            "GCRecord": null,
+            "Item": "af9dba2d-92ff-461f-aa7b-787db4567d57",
+            "Price": null,
+            "Quantity": "1.0000",
+            "CostCenter": null,
+            "Note": null,
+            "StockIssue": "59735f75-9f9c-4916-b58a-55414ab0206f",
+            "Sequence": 1,
+            "ItemUnit": "5daf6a23-472d-4921-9945-57674d5fd1aa",
+            "CostCenter2": null,
+            "CostCenter3": null,
+            "TotalAmount": 0,
+            "Account": null,
+            "BillingCustomerJobDetail": null,
+            "ItemName": "Item A - 024395",
+            "ItemUnitName": "PCS",
+            "Action": [
+                {
+                    "name": "Edit Note, Cost Center, and Account",
+                    "icon": "ActivityIcon",
+                    "type": "global_form2",
+                    "showModal": false,
+                    "get": "data\/detail\/StockIssueDetail\/4c074f42-a56c-493b-9ae9-9b4376dfa49e",
+                    "post": "data\/detail\/StockIssueDetail\/4c074f42-a56c-493b-9ae9-9b4376dfa49e",
+                    "hideWhen": [
+                        "add"
+                    ],
+                    "open_view": true,
+                    "afterRequest": "apply",
+                    "afterRequest2": [
+                        "applyTable"
+                    ],
+                    "show": true,
+                    "closeOnlyForm": true,
+                    "form": [
+                        {
+                            "fieldToSave": "Description",
+                            "type": "inputtext"
+                        },
+                        {
+                            "default": null,
+                            "fieldToSave": "BusinessPartner",
+                            "hiddenField": "BusinessPartnerName",
+                            "overrideLabel": "Business Partner",
+                            "params": {
+                                "type": "combo"
+                            },
+                            "type": "autocomplete",
+                            "placeHolder": "BusinessPartnerName",
+                            "source": [],
+                            "store": "autocomplete\/businesspartner",
+                            "toolTip": "Choose Business Partner"
+                        },
+                        {
+                            "fieldToSave": "CostCenter",
+                            "overrideLabel": "CostCenter 1",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "CostCenter2",
+                            "overrideLabel": "CostCenter 2",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "CostCenter3",
+                            "overrideLabel": "CostCenter 3",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "Account",
+                            "hiddenField": "AccountName",
+                            "type": "autocomplete",
+                            "source": [],
+                            "hideInput": false,
+                            "default": null,
+                            "initialDisable": false,
+                            "disabled": false,
+                            "store": "autocomplete\/account",
+                            "params": {
+                                "type": "combo",
+                                "term": ""
+                            }
+                        },
+                        [],
+                        {
+                            "fieldToSave": "DiscountAccount",
+                            "overrideLabel": "Discount Account",
+                            "type": "combobox",
+                            "column": "1\/2",
+                            "IsListShowPrimary": 0,
+                            "IsRefreshAlways": 0,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "placeHolder": "DiscountAccountName",
+                            "source": "combosource\/account",
+                            "onClick": {
+                                "action": "request",
+                                "store": "combosource\/account",
+                                "params": null
+                            },
+                            "hiddenField": "DiscountAccountName"
+                        },
+                        {
+                            "type": "viewtext",
+                            "value": "Kosongkan yang tidak perlu"
+                        },
+                        {
+                            "fieldToSave": "Note",
+                            "type": "inputarea"
+                        },
+                        {
+                            "fieldToSave": "Note2",
+                            "type": "inputarea"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "CreatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+            "UpdatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+            "CreatedAt": "2025-07-02 02:00:58",
+            "UpdatedAt": "2025-07-02 02:00:58",
+            "Oid": "616f216a-3415-42fa-9895-1db79825824c",
+            "Company": "d3170153-6b16-4397-bf89-96533ee149ee",
+            "CreatedAtUTC": "2025-07-01T19:00:58.000000Z",
+            "UpdatedAtUTC": "2025-07-01T19:00:58.000000Z",
+            "OptimisticLockField": null,
+            "GCRecord": null,
+            "Item": "cf1ae5a9-4726-41cf-a616-eebff6978c38",
+            "Price": "9000.0000",
+            "Quantity": "1.0000",
+            "CostCenter": null,
+            "Note": null,
+            "StockIssue": "59735f75-9f9c-4916-b58a-55414ab0206f",
+            "Sequence": 2,
+            "ItemUnit": "5daf6a23-472d-4921-9945-57674d5fd1aa",
+            "CostCenter2": null,
+            "CostCenter3": null,
+            "TotalAmount": 9000,
+            "Account": null,
+            "BillingCustomerJobDetail": null,
+            "ItemName": "000001 - Fodder - 000001",
+            "ItemUnitName": "PCS",
+            "Action": [
+                {
+                    "name": "Edit Note, Cost Center, and Account",
+                    "icon": "ActivityIcon",
+                    "type": "global_form2",
+                    "showModal": false,
+                    "get": "data\/detail\/StockIssueDetail\/616f216a-3415-42fa-9895-1db79825824c",
+                    "post": "data\/detail\/StockIssueDetail\/616f216a-3415-42fa-9895-1db79825824c",
+                    "hideWhen": [
+                        "add"
+                    ],
+                    "open_view": true,
+                    "afterRequest": "apply",
+                    "afterRequest2": [
+                        "applyTable"
+                    ],
+                    "show": true,
+                    "closeOnlyForm": true,
+                    "form": [
+                        {
+                            "fieldToSave": "Description",
+                            "type": "inputtext"
+                        },
+                        {
+                            "default": null,
+                            "fieldToSave": "BusinessPartner",
+                            "hiddenField": "BusinessPartnerName",
+                            "overrideLabel": "Business Partner",
+                            "params": {
+                                "type": "combo"
+                            },
+                            "type": "autocomplete",
+                            "placeHolder": "BusinessPartnerName",
+                            "source": [],
+                            "store": "autocomplete\/businesspartner",
+                            "toolTip": "Choose Business Partner"
+                        },
+                        {
+                            "fieldToSave": "CostCenter",
+                            "overrideLabel": "CostCenter 1",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "CostCenter2",
+                            "overrideLabel": "CostCenter 2",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "CostCenter3",
+                            "overrideLabel": "CostCenter 3",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "Account",
+                            "hiddenField": "AccountName",
+                            "type": "autocomplete",
+                            "source": [],
+                            "hideInput": false,
+                            "default": null,
+                            "initialDisable": false,
+                            "disabled": false,
+                            "store": "autocomplete\/account",
+                            "params": {
+                                "type": "combo",
+                                "term": ""
+                            }
+                        },
+                        [],
+                        {
+                            "fieldToSave": "DiscountAccount",
+                            "overrideLabel": "Discount Account",
+                            "type": "combobox",
+                            "column": "1\/2",
+                            "IsListShowPrimary": 0,
+                            "IsRefreshAlways": 0,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "placeHolder": "DiscountAccountName",
+                            "source": "combosource\/account",
+                            "onClick": {
+                                "action": "request",
+                                "store": "combosource\/account",
+                                "params": null
+                            },
+                            "hiddenField": "DiscountAccountName"
+                        },
+                        {
+                            "type": "viewtext",
+                            "value": "Kosongkan yang tidak perlu"
+                        },
+                        {
+                            "fieldToSave": "Note",
+                            "type": "inputarea"
+                        },
+                        {
+                            "fieldToSave": "Note2",
+                            "type": "inputarea"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "CreatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+            "UpdatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+            "CreatedAt": "2025-07-02 02:04:58",
+            "UpdatedAt": "2025-07-02 02:04:58",
+            "Oid": "15a3fe6f-86d8-4589-af74-b9c11f0bc2ff",
+            "Company": "d3170153-6b16-4397-bf89-96533ee149ee",
+            "CreatedAtUTC": "2025-07-01T19:04:58.000000Z",
+            "UpdatedAtUTC": "2025-07-01T19:04:58.000000Z",
+            "OptimisticLockField": null,
+            "GCRecord": null,
+            "Item": "05a16598-f126-41ff-975b-e9fd360e404c",
+            "Price": "5000.0000",
+            "Quantity": "1.0000",
+            "CostCenter": null,
+            "Note": null,
+            "StockIssue": "59735f75-9f9c-4916-b58a-55414ab0206f",
+            "Sequence": 3,
+            "ItemUnit": "5daf6a23-472d-4921-9945-57674d5fd1aa",
+            "CostCenter2": null,
+            "CostCenter3": null,
+            "TotalAmount": 5000,
+            "Account": null,
+            "BillingCustomerJobDetail": null,
+            "ItemName": "000001 - Aqua Mini - 000001",
+            "ItemUnitName": "PCS",
+            "Action": [
+                {
+                    "name": "Edit Note, Cost Center, and Account",
+                    "icon": "ActivityIcon",
+                    "type": "global_form2",
+                    "showModal": false,
+                    "get": "data\/detail\/StockIssueDetail\/15a3fe6f-86d8-4589-af74-b9c11f0bc2ff",
+                    "post": "data\/detail\/StockIssueDetail\/15a3fe6f-86d8-4589-af74-b9c11f0bc2ff",
+                    "hideWhen": [
+                        "add"
+                    ],
+                    "open_view": true,
+                    "afterRequest": "apply",
+                    "afterRequest2": [
+                        "applyTable"
+                    ],
+                    "show": true,
+                    "closeOnlyForm": true,
+                    "form": [
+                        {
+                            "fieldToSave": "Description",
+                            "type": "inputtext"
+                        },
+                        {
+                            "default": null,
+                            "fieldToSave": "BusinessPartner",
+                            "hiddenField": "BusinessPartnerName",
+                            "overrideLabel": "Business Partner",
+                            "params": {
+                                "type": "combo"
+                            },
+                            "type": "autocomplete",
+                            "placeHolder": "BusinessPartnerName",
+                            "source": [],
+                            "store": "autocomplete\/businesspartner",
+                            "toolTip": "Choose Business Partner"
+                        },
+                        {
+                            "fieldToSave": "CostCenter",
+                            "overrideLabel": "CostCenter 1",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "CostCenter2",
+                            "overrideLabel": "CostCenter 2",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "CostCenter3",
+                            "overrideLabel": "CostCenter 3",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "Account",
+                            "hiddenField": "AccountName",
+                            "type": "autocomplete",
+                            "source": [],
+                            "hideInput": false,
+                            "default": null,
+                            "initialDisable": false,
+                            "disabled": false,
+                            "store": "autocomplete\/account",
+                            "params": {
+                                "type": "combo",
+                                "term": ""
+                            }
+                        },
+                        [],
+                        {
+                            "fieldToSave": "DiscountAccount",
+                            "overrideLabel": "Discount Account",
+                            "type": "combobox",
+                            "column": "1\/2",
+                            "IsListShowPrimary": 0,
+                            "IsRefreshAlways": 0,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "placeHolder": "DiscountAccountName",
+                            "source": "combosource\/account",
+                            "onClick": {
+                                "action": "request",
+                                "store": "combosource\/account",
+                                "params": null
+                            },
+                            "hiddenField": "DiscountAccountName"
+                        },
+                        {
+                            "type": "viewtext",
+                            "value": "Kosongkan yang tidak perlu"
+                        },
+                        {
+                            "fieldToSave": "Note",
+                            "type": "inputarea"
+                        },
+                        {
+                            "fieldToSave": "Note2",
+                            "type": "inputarea"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "CreatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+            "UpdatedBy": "c13fd14d-08b0-4789-a7d4-95e292179e31",
+            "CreatedAt": "2025-07-02 02:23:46",
+            "UpdatedAt": "2025-07-02 02:23:46",
+            "Oid": "69fc5039-6b3b-4b48-91af-ea02411572cb",
+            "Company": "d3170153-6b16-4397-bf89-96533ee149ee",
+            "CreatedAtUTC": "2025-07-01T19:23:46.000000Z",
+            "UpdatedAtUTC": "2025-07-01T19:23:46.000000Z",
+            "OptimisticLockField": null,
+            "GCRecord": null,
+            "Item": "890c9f6f-ac3b-4c51-b191-a72b8a80ddba",
+            "Price": "50000.0000",
+            "Quantity": "1.0000",
+            "CostCenter": null,
+            "Note": null,
+            "StockIssue": "59735f75-9f9c-4916-b58a-55414ab0206f",
+            "Sequence": 4,
+            "ItemUnit": "5daf6a23-472d-4921-9945-57674d5fd1aa",
+            "CostCenter2": null,
+            "CostCenter3": null,
+            "TotalAmount": 50000,
+            "Account": null,
+            "BillingCustomerJobDetail": null,
+            "ItemName": "Ayam goreng - 000072",
+            "ItemUnitName": "PCS",
+            "Action": [
+                {
+                    "name": "Edit Note, Cost Center, and Account",
+                    "icon": "ActivityIcon",
+                    "type": "global_form2",
+                    "showModal": false,
+                    "get": "data\/detail\/StockIssueDetail\/69fc5039-6b3b-4b48-91af-ea02411572cb",
+                    "post": "data\/detail\/StockIssueDetail\/69fc5039-6b3b-4b48-91af-ea02411572cb",
+                    "hideWhen": [
+                        "add"
+                    ],
+                    "open_view": true,
+                    "afterRequest": "apply",
+                    "afterRequest2": [
+                        "applyTable"
+                    ],
+                    "show": true,
+                    "closeOnlyForm": true,
+                    "form": [
+                        {
+                            "fieldToSave": "Description",
+                            "type": "inputtext"
+                        },
+                        {
+                            "default": null,
+                            "fieldToSave": "BusinessPartner",
+                            "hiddenField": "BusinessPartnerName",
+                            "overrideLabel": "Business Partner",
+                            "params": {
+                                "type": "combo"
+                            },
+                            "type": "autocomplete",
+                            "placeHolder": "BusinessPartnerName",
+                            "source": [],
+                            "store": "autocomplete\/businesspartner",
+                            "toolTip": "Choose Business Partner"
+                        },
+                        {
+                            "fieldToSave": "CostCenter",
+                            "overrideLabel": "CostCenter 1",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "CostCenter2",
+                            "overrideLabel": "CostCenter 2",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "CostCenter3",
+                            "overrideLabel": "CostCenter 3",
+                            "type": "autocomplete",
+                            "hiddenField": "CostCenterName",
+                            "initialDisable": false,
+                            "params": {
+                                "term": "",
+                                "type": "combo"
+                            },
+                            "store": "autocomplete\/costcenter",
+                            "source": []
+                        },
+                        {
+                            "fieldToSave": "Account",
+                            "hiddenField": "AccountName",
+                            "type": "autocomplete",
+                            "source": [],
+                            "hideInput": false,
+                            "default": null,
+                            "initialDisable": false,
+                            "disabled": false,
+                            "store": "autocomplete\/account",
+                            "params": {
+                                "type": "combo",
+                                "term": ""
+                            }
+                        },
+                        [],
+                        {
+                            "fieldToSave": "DiscountAccount",
+                            "overrideLabel": "Discount Account",
+                            "type": "combobox",
+                            "column": "1\/2",
+                            "IsListShowPrimary": 0,
+                            "IsRefreshAlways": 0,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "placeHolder": "DiscountAccountName",
+                            "source": "combosource\/account",
+                            "onClick": {
+                                "action": "request",
+                                "store": "combosource\/account",
+                                "params": null
+                            },
+                            "hiddenField": "DiscountAccountName"
+                        },
+                        {
+                            "type": "viewtext",
+                            "value": "Kosongkan yang tidak perlu"
+                        },
+                        {
+                            "fieldToSave": "Note",
+                            "type": "inputarea"
+                        },
+                        {
+                            "fieldToSave": "Note2",
+                            "type": "inputarea"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "Approvals": [],
+    "Journals": [],
+    "Stocks": [],
+    "Files": [],
+    "DataLogs": [],
+    "Action": [
+        {
+            "name": "Edit In Detail",
+            "icon": "EditIcon",
+            "type": "open_form",
+            "url": "form\/stockissue?item=59735f75-9f9c-4916-b58a-55414ab0206f",
+            "newTab": true,
+            "show": false
+        },
+        {
+            "name": "Open",
+            "icon": "EyeIcon",
+            "type": "open_view2",
+            "show": true,
+            "get": "stockissue\/59735f75-9f9c-4916-b58a-55414ab0206f?field=view2"
+        },
+        {
+            "name": "Edit Code & Note",
+            "icon": "ActivityIcon",
+            "type": "global_form2",
+            "showModal": false,
+            "get": "stockissue\/59735f75-9f9c-4916-b58a-55414ab0206f?field=codenote",
+            "post": "stockissue\/59735f75-9f9c-4916-b58a-55414ab0206f?editposted=true",
+            "afterRequest": "init",
+            "afterRequest2": [
+                "init"
+            ],
+            "closeOnlyForm": true
+        },
+        {
+            "name": "Edit Department",
+            "icon": "ActivityIcon",
+            "type": "global_form2",
+            "showModal": false,
+            "post": "publicapproval\/changedepartment?Oid=59735f75-9f9c-4916-b58a-55414ab0206f&type=StockIssue",
+            "afterRequest": "apply",
+            "form": [
+                {
+                    "fieldToSave": "Department",
+                    "type": "combobox",
+                    "validationParams": "required",
+                    "source": "combosource\/department?Oid=59735f75-9f9c-4916-b58a-55414ab0206f&type=StockIssue",
+                    "onClick": {
+                        "action": "request",
+                        "store": "combosource\/department?Oid=59735f75-9f9c-4916-b58a-55414ab0206f&type=StockIssue",
+                        "params": null
+                    },
+                    "hiddenField": "DepartmentName"
+                }
+            ]
+        },
+        {
+            "name": "Submit \/ Posted",
+            "icon": "CheckCircleIcon",
+            "type": "confirm",
+            "organize": "topButtonExtract",
+            "post": "publicapproval\/submit?StockIssue=59735f75-9f9c-4916-b58a-55414ab0206f",
+            "afterRequest": "init"
+        },
+        {
+            "name": "Delete",
+            "icon": "TrashIcon",
+            "type": "confirm",
+            "delete": "stockissue\/59735f75-9f9c-4916-b58a-55414ab0206f",
+            "afterRequest": [
+                {
+                    "type": "redirect",
+                    "url": "\/list2\/stockissue"
+                }
+            ]
+        },
+        {
+            "name": "Cancel",
+            "icon": "XIcon",
+            "type": "confirm",
+            "message": "Cancel",
+            "post": "data\/status?Oid=59735f75-9f9c-4916-b58a-55414ab0206f&Module=StockIssue&Status=cancel",
+            "afterRequest": "init",
+            "afterRequest2": [
+                "init"
+            ]
+        },
+        {
+            "name": "Add To Calendar",
+            "icon": "CalendarIcon",
+            "type": "confirm",
+            "organize": "share",
+            "post": "publiccalendar\/create?Oid=59735f75-9f9c-4916-b58a-55414ab0206f&Type=StockIssue"
+        },
+        {
+            "name": "Show Related",
+            "icon": "EyeIcon",
+            "type": "open_grid",
+            "get": "data\/stockissue\/related2?Oid=59735f75-9f9c-4916-b58a-55414ab0206f"
+        },
+        {
+            "name": "Stock Log",
+            "icon": "BookIcon",
+            "type": "open_grid",
+            "display": "table",
+            "get": "data\/stocklog?Oid=59735f75-9f9c-4916-b58a-55414ab0206f",
+            "reopenMultiGrid": true
+        },
+        {
+            "name": "Journal Log",
+            "icon": "BookIcon",
+            "type": "open_grid",
+            "display": "table",
+            "get": "data\/journallog?Oid=59735f75-9f9c-4916-b58a-55414ab0206f",
+            "reopenMultiGrid": true
+        }
+    ],
+    "ActionNew": {
+        "name": "Add New",
+        "icon": "PlusIcon",
+        "type": "global_form2",
+        "bookmark": true,
+        "showModal": false,
+        "post": "stockissue",
+        "form": [
+            {
+                "headerName": "Company",
+                "field": "CompanyName",
+                "fieldToSave": "Company",
+                "fieldToSearch": "Company.Code",
+                "overrideLabel": "Company",
+                "type": "combobox",
+                "filter": "agTextColumnFilter",
+                "IsCurrency": null,
+                "width": 80,
+                "hideInput": false,
+                "column": "1\/3",
+                "disabled": true,
+                "IsListShowPrimary": 1,
+                "IsRefreshAlways": null,
+                "IsDisabledFilter": 0,
+                "default": [
+                    "localCompany",
+                    "CompanyObj"
+                ],
+                "placeHolder": "CompanyName",
+                "source": "combosource\/company",
+                "onClick": {
+                    "action": "request",
+                    "store": "combosource\/company",
+                    "params": null
+                },
+                "hiddenField": "CompanyName",
+                "initialDisable": false
+            },
+            {
+                "headerName": "Code",
+                "field": "Code",
+                "fieldToSave": "Code",
+                "fieldToSearch": "data.Code",
+                "overrideLabel": "Code",
+                "type": "inputtext",
+                "filter": "agTextColumnFilter",
+                "IsCurrency": null,
+                "width": null,
+                "hideInput": false,
+                "validationParams": "required",
+                "column": "1\/2",
+                "IsListShowPrimary": 1,
+                "IsRefreshAlways": null,
+                "IsDisabledFilter": 0,
+                "default": "<<AutoGenerate>>",
+                "maxLength": 50,
+                "placeHolder": "Code",
+                "initialDisable": false
+            },
+            {
+                "headerName": "Date",
+                "field": "Date",
+                "fieldToSave": "Date",
+                "fieldToSearch": "data.Date",
+                "overrideLabel": "Date",
+                "type": "inputdateinline",
+                "filter": "agTextColumnFilter",
+                "IsCurrency": null,
+                "width": null,
+                "hideInput": false,
+                "validationParams": "required",
+                "column": "1\/2",
+                "IsListShowPrimary": 1,
+                "IsRefreshAlways": null,
+                "IsDisabledFilter": 0,
+                "default": "2025-07-01",
+                "placeHolder": "Date",
+                "initialDisable": false
+            },
+            {
+                "headerName": "Account",
+                "field": "AccountName",
+                "fieldToSave": "Account",
+                "fieldToSearch": "Account.Name",
+                "overrideLabel": "Account",
+                "type": "combobox",
+                "filter": "agTextColumnFilter",
+                "IsCurrency": null,
+                "width": null,
+                "hideInput": false,
+                "validationParams": "required",
+                "column": "1\/2",
+                "IsListShowPrimary": 1,
+                "IsRefreshAlways": null,
+                "IsDisabledFilter": 0,
+                "default": null,
+                "placeHolder": "AccountName",
+                "source": "combosource\/account",
+                "onClick": {
+                    "action": "request",
+                    "store": "combosource\/account",
+                    "params": null
+                },
+                "hiddenField": "AccountName",
+                "initialDisable": false
+            },
+            {
+                "headerName": "Status",
+                "field": "StatusName",
+                "fieldToSave": "Status",
+                "fieldToSearch": "Status.Name",
+                "overrideLabel": "Status",
+                "type": "combobox",
+                "filter": "agTextColumnFilter",
+                "IsCurrency": null,
+                "width": null,
+                "hideInput": false,
+                "column": "1\/2",
+                "disabled": true,
+                "IsListShowPrimary": 1,
+                "IsRefreshAlways": null,
+                "IsDisabledFilter": 0,
+                "default": [
+                    "localStatusAccount",
+                    1
+                ],
+                "hideWhen": [
+                    "add"
+                ],
+                "placeHolder": "StatusName",
+                "source": "master\/status",
+                "onClick": {
+                    "action": "request",
+                    "store": "master\/status",
+                    "params": null
+                },
+                "hiddenField": "StatusName",
+                "initialDisable": false
+            },
+            {
+                "headerName": "Requestor",
+                "field": "RequestorName",
+                "fieldToSave": "Requestor",
+                "fieldToSearch": "Requestor.Name",
+                "overrideLabel": "Requestor",
+                "type": "autocomplete",
+                "filter": "agTextColumnFilter",
+                "IsCurrency": null,
+                "width": null,
+                "hide": true,
+                "hideInput": true,
+                "column": "1\/3",
+                "disabled": false,
+                "IsListShowPrimary": null,
+                "IsRefreshAlways": null,
+                "IsComboAutoCompleteFirstInitial": null,
+                "IsDisabledFilter": 0,
+                "default": [
+                    "localUser",
+                    "Oid"
+                ],
+                "placeHolder": "RequestorName",
+                "source": [],
+                "store": "autocomplete\/user",
+                "hiddenField": "RequestorName",
+                "initialDisable": false,
+                "validationParams": null
+            },
+            {
+                "headerName": "Requestor1",
+                "field": "Requestor1Name",
+                "fieldToSave": "Requestor1",
+                "fieldToSearch": "Requestor1.Name",
+                "overrideLabel": "Requestor1",
+                "type": "autocomplete",
+                "filter": "agTextColumnFilter",
+                "IsCurrency": null,
+                "width": null,
+                "hide": true,
+                "hideInput": true,
+                "column": "1\/3",
+                "IsListShowPrimary": null,
+                "IsRefreshAlways": null,
+                "IsComboAutoCompleteFirstInitial": null,
+                "IsDisabledFilter": 0,
+                "default": null,
+                "placeHolder": "Requestor1Name",
+                "source": [],
+                "store": "autocomplete\/employee",
+                "hiddenField": "Requestor1Name",
+                "initialDisable": false,
+                "disabled": true,
+                "validationParams": null
+            },
+            {
+                "headerName": "Note",
+                "field": "Note",
+                "fieldToSave": "Note",
+                "fieldToSearch": "data.Note",
+                "overrideLabel": "Note",
+                "type": "inputarea",
+                "filter": "agTextColumnFilter",
+                "IsCurrency": null,
+                "width": null,
+                "hide": true,
+                "hideInput": false,
+                "IsListShowPrimary": null,
+                "IsRefreshAlways": null,
+                "IsDisabledFilter": 0,
+                "default": null,
+                "placeHolder": "Note",
+                "cellRenderer": "longtext",
+                "cellStyle": {
+                    "white-space": "normal"
+                },
+                "autoHeight": true,
+                "paddingLeft": "5px !important",
+                "paddingRight": "1px !important",
+                "fontSize": "8px",
+                "initialDisable": false
+            }
+        ],
+        "width": "large",
+        "afterRequest2": [
+            {
+                "type": "open_form",
+                "url": "form\/stockissue?item={value.Oid}",
+                "reloadpage": true
+            }
+        ],
+        "organize": "topButton"
+    },
+    "ConfigView": {
+        "main": {
+            "name": "Main",
+            "icon": "FolderIcon",
+            "editButton": "false",
+            "hideWhen": null,
+            "fieldGroups": [
+                {
+                    "name": "Main",
+                    "icon": "FolderIcon",
+                    "fields": [
+                        {
+                            "fieldToSave": "CompanyName",
+                            "overrideLabel": "Company",
+                            "type": "ViewOnly",
+                            "initialDisable": true,
+                            "disabled": true,
+                            "column": "1\/6",
+                            "IsListShowPrimary": 1,
+                            "IsRefreshAlways": null,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "placeHolder": "CompanyName",
+                            "source": [],
+                            "store": "combosource\/company",
+                            "hiddenField": "CompanyName"
+                        },
+                        {
+                            "fieldToSave": "Code",
+                            "overrideLabel": "Code",
+                            "type": "ViewOnly",
+                            "initialDisable": true,
+                            "disabled": true,
+                            "validationParams": "required",
+                            "column": "1\/4",
+                            "IsListShowPrimary": 1,
+                            "IsRefreshAlways": null,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "maxLength": 50,
+                            "placeHolder": "Code"
+                        },
+                        {
+                            "fieldToSave": "Date",
+                            "overrideLabel": "Date",
+                            "type": "ViewOnly",
+                            "initialDisable": true,
+                            "disabled": true,
+                            "validationParams": "required",
+                            "column": "1\/4",
+                            "IsListShowPrimary": 1,
+                            "IsRefreshAlways": null,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "placeHolder": "Date"
+                        },
+                        {
+                            "fieldToSave": "AccountName",
+                            "overrideLabel": "Account",
+                            "type": "ViewOnly",
+                            "initialDisable": true,
+                            "disabled": true,
+                            "validationParams": "required",
+                            "column": "1\/4",
+                            "IsListShowPrimary": 1,
+                            "IsRefreshAlways": null,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "placeHolder": "AccountName",
+                            "source": [],
+                            "store": "combosource\/account",
+                            "hiddenField": "AccountName"
+                        },
+                        {
+                            "fieldToSave": "StatusName",
+                            "overrideLabel": "Status",
+                            "type": "ViewOnly",
+                            "initialDisable": true,
+                            "disabled": true,
+                            "column": "1\/4",
+                            "IsListShowPrimary": 1,
+                            "IsRefreshAlways": null,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "placeHolder": "StatusName",
+                            "source": [],
+                            "store": "master\/status",
+                            "hiddenField": "StatusName"
+                        },
+                        {
+                            "fieldToSave": "Note",
+                            "overrideLabel": "Note",
+                            "type": "ViewOnly",
+                            "initialDisable": true,
+                            "disabled": true,
+                            "column": "1\/2",
+                            "IsListShowPrimary": null,
+                            "IsRefreshAlways": null,
+                            "IsDisabledFilter": 0,
+                            "default": null,
+                            "placeHolder": "Note",
+                            "cellRenderer": "longtext",
+                            "cellStyle": {
+                                "white-space": "normal"
+                            },
+                            "autoHeight": true,
+                            "paddingLeft": "5px !important",
+                            "paddingRight": "1px !important",
+                            "fontSize": "8px"
+                        }
+                    ]
+                },
+                {
+                    "name": "Approvals",
+                    "icon": "SettingsIcon",
+                    "column": "1\/1",
+                    "fields": [
+                        {
+                            "name": "Approvals",
+                            "icon": "SettingsIcon",
+                            "type": "table",
+                            "list": [
+                                {
+                                    "field": "Sequence",
+                                    "name": "Sequence",
+                                    "overrideLabel": "Sequence",
+                                    "width": 150,
+                                    "sum": null,
+                                    "IsCurrency": null,
+                                    "Integer": true,
+                                    "cellRenderer": "NumberCell",
+                                    "validationParams": "money"
+                                },
+                                {
+                                    "field": "UserName",
+                                    "name": "User",
+                                    "overrideLabel": "User",
+                                    "width": 150,
+                                    "sum": null,
+                                    "IsCurrency": null
+                                },
+                                {
+                                    "field": "Action",
+                                    "name": "Status",
+                                    "overrideLabel": "Status",
+                                    "width": 150,
+                                    "sum": null,
+                                    "IsCurrency": null
+                                },
+                                {
+                                    "field": "ActionDate",
+                                    "name": "ActionDate",
+                                    "overrideLabel": "ActionDate",
+                                    "width": 150,
+                                    "sum": null,
+                                    "IsCurrency": null
+                                },
+                                {
+                                    "field": "Note",
+                                    "name": "Note",
+                                    "overrideLabel": "Note",
+                                    "width": 150,
+                                    "sum": null,
+                                    "IsCurrency": null,
+                                    "cellRenderer": "longtext",
+                                    "cellStyle": {
+                                        "white-space": "normal"
+                                    },
+                                    "autoHeight": true,
+                                    "paddingLeft": "5px !important",
+                                    "paddingRight": "1px !important",
+                                    "fontSize": "8px"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Details",
+                    "icon": "SettingsIcon",
+                    "column": "1\/1",
+                    "fields": [
+                        {
+                            "name": "Details",
+                            "icon": "SettingsIcon",
+                            "type": "table",
+                            "list": [
+                                {
+                                    "field": "AccountName",
+                                    "name": "Account",
+                                    "overrideLabel": "Account",
+                                    "width": 150,
+                                    "sum": null,
+                                    "IsCurrency": null,
+                                    "editType": [
+                                        {
+                                            "fieldToSave": "Account",
+                                            "type": "combobox",
+                                            "source": "combosource\/account",
+                                            "onClick": {
+                                                "action": "request",
+                                                "store": "combosource\/account",
+                                                "params": null
+                                            },
+                                            "hiddenField": "AccountName",
+                                            "disabled": false
+                                        }
+                                    ],
+                                    "seperateRow": 1
+                                },
+                                {
+                                    "field": "Note2",
+                                    "name": "Note2",
+                                    "overrideLabel": "Note2",
+                                    "width": 150,
+                                    "sum": null,
+                                    "IsCurrency": null,
+                                    "seperateRow": 1,
+                                    "cellRenderer": "longtext",
+                                    "cellStyle": {
+                                        "white-space": "normal"
+                                    },
+                                    "autoHeight": true,
+                                    "paddingLeft": "5px !important",
+                                    "paddingRight": "1px !important",
+                                    "fontSize": "8px"
+                                },
+                                {
+                                    "field": "Note",
+                                    "name": "Note",
+                                    "overrideLabel": "Note",
+                                    "width": null,
+                                    "sum": null,
+                                    "IsCurrency": null,
+                                    "seperateRow": 1,
+                                    "cellRenderer": "longtext",
+                                    "cellStyle": {
+                                        "white-space": "normal"
+                                    },
+                                    "autoHeight": true,
+                                    "paddingLeft": "5px !important",
+                                    "paddingRight": "1px !important",
+                                    "fontSize": "8px"
+                                },
+                                {
+                                    "field": "ItemName",
+                                    "name": "Item",
+                                    "overrideLabel": "Item",
+                                    "width": null,
+                                    "sum": null,
+                                    "IsCurrency": null,
+                                    "validationParams": "required",
+                                    "addNewButton": {
+                                        "name": "Add New",
+                                        "icon": "PlusIcon",
+                                        "type": "global_form2",
+                                        "showModal": false,
+                                        "post": "item",
+                                        "organize": "topButton",
+                                        "config": "item\/configadd?field=product"
+                                    },
+                                    "isAdvanceSearch": {
+                                        "form": "item\/combosearch",
+                                        "get": "item\/combosearch"
+                                    },
+                                    "isDescriptionHistory": {
+                                        "type": "descriptionTable",
+                                        "get": "item\/descriptionhistory?Item={oid}"
+                                    },
+                                    "cellRenderer": "longtext",
+                                    "cellStyle": {
+                                        "white-space": "normal"
+                                    },
+                                    "autoHeight": true,
+                                    "paddingLeft": "5px !important",
+                                    "paddingRight": "1px !important",
+                                    "fontSize": "8px"
+                                },
+                                {
+                                    "field": "Quantity",
+                                    "name": "Quantity",
+                                    "overrideLabel": "Quantity",
+                                    "width": null,
+                                    "sum": null,
+                                    "IsCurrency": null,
+                                    "cellRenderer": "NumberCell",
+                                    "validationParams": "money|required"
+                                },
+                                {
+                                    "field": "ItemUnitName",
+                                    "name": "Item Unit",
+                                    "overrideLabel": "Item Unit",
+                                    "width": null,
+                                    "sum": null,
+                                    "IsCurrency": null,
+                                    "validationParams": "required"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "title": "Stock Issue",
+        "name": "StockIssue",
+        "others": [
+            {
+                "name": "Journals",
+                "icon": "SettingsIcon",
+                "fields": [
+                    {
+                        "name": "Journals",
+                        "type": "table",
+                        "icon": "SettingsIcon",
+                        "list": [
+                            {
+                                "field": "AccountName",
+                                "name": "Account"
+                            },
+                            {
+                                "field": "CurrencyName",
+                                "name": "Cur"
+                            },
+                            {
+                                "field": "DebetAmount",
+                                "name": "Debet",
+                                "sum": 1,
+                                "cellRenderer": "NumberCell",
+                                "validationParams": "money|required"
+                            },
+                            {
+                                "field": "CreditAmount",
+                                "name": "Credit",
+                                "sum": 1,
+                                "cellRenderer": "NumberCell",
+                                "validationParams": "money|required"
+                            },
+                            {
+                                "field": "DebetBase",
+                                "name": "DB Base",
+                                "sum": 1,
+                                "cellRenderer": "NumberCell",
+                                "validationParams": "money|required"
+                            },
+                            {
+                                "field": "CreditBase",
+                                "name": "CR Base",
+                                "sum": 1,
+                                "cellRenderer": "NumberCell",
+                                "validationParams": "money|required"
+                            },
+                            {
+                                "field": "CostCenterName",
+                                "name": "C\/C",
+                                "seperateRow": true
+                            },
+                            {
+                                "field": "CostCenter2Name",
+                                "name": "C\/C2",
+                                "seperateRow": true
+                            },
+                            {
+                                "field": "CostCenter3Name",
+                                "name": "C\/C3",
+                                "seperateRow": true
+                            },
+                            {
+                                "field": "BusinessPartnerName",
+                                "name": "BusinessPartner",
+                                "seperateRow": true
+                            },
+                            {
+                                "field": "EmployeeName",
+                                "name": "Employee",
+                                "seperateRow": true
+                            },
+                            {
+                                "field": "Description",
+                                "name": "Description",
+                                "seperateRow": true
+                            },
+                            {
+                                "field": "StatusName",
+                                "name": "Status"
+                            }
+                        ],
+                        "totalFooter": [
+                            {
+                                "Type": "Sum",
+                                "Field": "DebetAmount",
+                                "ColSpan": 1
+                            },
+                            {
+                                "Type": "Sum",
+                                "Field": "CreditAmount",
+                                "ColSpan": 1
+                            },
+                            {
+                                "Type": "Sum",
+                                "Field": "DebetBase",
+                                "ColSpan": 1
+                            },
+                            {
+                                "Type": "Sum",
+                                "Field": "CreditBase",
+                                "ColSpan": 1
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Stocks",
+                "type": "table",
+                "fields": [
+                    {
+                        "name": "Stocks",
+                        "type": "table",
+                        "icon": "SettingsIcon",
+                        "list": [
+                            {
+                                "field": "ItemName",
+                                "name": "Item"
+                            },
+                            {
+                                "field": "StockQuantity",
+                                "name": "Qty",
+                                "cellRenderer": "NumberCell",
+                                "validationParams": "money|required"
+                            },
+                            {
+                                "field": "StockAmount",
+                                "name": "Price (Amt)",
+                                "cellRenderer": "NumberCell",
+                                "validationParams": "money|required"
+                            },
+                            {
+                                "field": "StockCost",
+                                "name": "Cost",
+                                "cellRenderer": "NumberCell",
+                                "validationParams": "money|required"
+                            },
+                            {
+                                "field": "StockCostTotal",
+                                "name": "Cost Total",
+                                "cellRenderer": "NumberCell",
+                                "validationParams": "money|required",
+                                "sum": 1
+                            },
+                            {
+                                "field": "StatusName",
+                                "name": "Status"
+                            },
+                            {
+                                "field": "CostCenterName",
+                                "name": "C\/C",
+                                "seperateRow": true
+                            },
+                            {
+                                "field": "CostCenter2Name",
+                                "name": "C\/C2",
+                                "seperateRow": true
+                            },
+                            {
+                                "field": "CostCenter3Name",
+                                "name": "C\/C3",
+                                "seperateRow": true
+                            }
+                        ],
+                        "totalFooter": [
+                            {
+                                "Type": "Sum",
+                                "Field": "StockCostTotal",
+                                "ColSpan": 6
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Files",
+                "fieldToSave": "Files",
+                "type": "files",
+                "icon": "PaperclipIcon",
+                "post": "file\/upload?Oid=59735f75-9f9c-4916-b58a-55414ab0206f&Type=StockIssue",
+                "delete": "file\/{Oid}"
+            },
+            {
+                "name": "Information",
+                "icon": "InfoIcon",
+                "hideWhen": null,
+                "fields": [
+                    {
+                        "fieldToSave": "CreatedByName",
+                        "type": "ViewOnly",
+                        "overrideLabel": "Created By",
+                        "column": "1\/4"
+                    },
+                    {
+                        "fieldToSave": "CreatedAt",
+                        "type": "ViewOnly",
+                        "overrideLabel": "Created At",
+                        "column": "1\/4"
+                    },
+                    {
+                        "fieldToSave": "UpdatedByName",
+                        "type": "ViewOnly",
+                        "overrideLabel": "Updated By",
+                        "column": "1\/4"
+                    },
+                    {
+                        "fieldToSave": "UpdatedAt",
+                        "type": "ViewOnly",
+                        "overrideLabel": "Updated At",
+                        "column": "1\/4"
+                    },
+                    {
+                        "icon": "SettingsIcon",
+                        "name": "StatusLogs",
+                        "type": "table",
+                        "list": [
+                            {
+                                "field": "CreatedAt",
+                                "name": "Date"
+                            },
+                            {
+                                "field": "UserName",
+                                "name": "UserName"
+                            },
+                            {
+                                "field": "StatusName",
+                                "name": "Status"
+                            },
+                            {
+                                "field": "TotalAmount",
+                                "name": "TotalAmount"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "customLayout": {
+            "HeaderImage": "CompanyImage",
+            "HeaderTitle": "CompanyFullName",
+            "HeaderSubtitle": "CompanyFullAddress",
+            "ModuleName": "STOCK ISSUE",
+            "Left": [
+                "DepartmentName",
+                "Note"
+            ],
+            "Right": [
+                "Code",
+                "Date"
+            ]
+        },
+        "autoScroll": true
+    },
+    "ConfigForm3": null,
+    "Comments": []
+}

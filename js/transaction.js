@@ -467,9 +467,8 @@ export async function openTransactionDetailDrawer(oid) {
                 <tr>
                     <td class="px-4 py-2 text-center">${idx + 1}</td>
                     <td class="px-4 py-2">${item.ItemName || '-'}</td>
-                    <td class="px-4 py-2 text-center">${item.Quantity || '-'}</td>
+                    <td class="px-4 py-2 text-center">${item.Quantity ? Number(item.Quantity).toString().replace(/\.0+$/, '') : '-'}</td>
                     <td class="px-4 py-2">${item.ItemUnitName || '-'}</td>
-                    <td class="px-4 py-2">${item.Note || '-'}</td>
                     <td class="px-4 py-2 text-center whitespace-nowrap text-sm font-medium">
                         <button class="btn-detail-edit text-primary hover:text-secondary mr-2 font-medium" data-oid="${item.Oid}" data-parent="${oid}">Edit</button>
                         <button class="btn-detail-delete text-red-600 hover:text-red-900 font-medium" data-oid="${item.Oid}" data-parent="${oid}">Hapus</button>
@@ -540,7 +539,6 @@ function showDetailItemModal(mode, parentOid, detail = null) {
     form.reset();
     document.getElementById('detail-item-oid').value = detail && detail.Oid ? detail.Oid : '';
     document.getElementById('detail-qty').value = detail && detail.Quantity ? detail.Quantity : 1;
-    document.getElementById('detail-note').value = detail && detail.Note ? detail.Note : '';
     // Dropdown dari master
     const itemSelect = document.getElementById('detail-item');
     itemSelect.innerHTML = masterDetailItems.map(i => `<option value="${i.Oid}">${i.Label || i.Name || '-'}</option>`).join('');
@@ -571,7 +569,6 @@ async function handleDetailItemSubmit(e) {
     const qty = document.getElementById('detail-qty').value;
     const unit = document.getElementById('detail-unit').value;
     const unitName = document.getElementById('detail-unit').selectedOptions[0]?.text || '';
-    const note = document.getElementById('detail-note').value;
     const oid = document.getElementById('detail-item-oid').value;
     if (!item || !qty || !unit) return alert('Semua field wajib diisi!');
     const token = localStorage.getItem('authToken');
@@ -584,7 +581,7 @@ async function handleDetailItemSubmit(e) {
         Quantity: qty.toString(),
         ItemUnit: unit,
         ItemUnitName: unitName,
-        Note: note || null
+        Description: null
     };
     if (mode === 'edit') body.Oid = oid;
     try {
