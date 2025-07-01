@@ -362,25 +362,24 @@
     <script>
         // Render ulang field group/account/unit sesuai mode tambah/edit
         function renderItemModalFields(isEdit, group, accGroup, unit, groupOid, accGroupOid, unitOid) {
-            document.getElementById('item-group-field').innerHTML = isEdit
-                ? `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Group*</label><input type='text' id='item-group' class='w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100' value='${group || ''}' readonly>`
-                : `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Group<span class='text-red-500'>*</span></label><select id='item-group' required class='w-full px-3 py-2 border border-gray-300 rounded-md'></select>`;
-            document.getElementById('item-account-group-field').innerHTML = isEdit
-                ? `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Account Group*</label><input type='text' id='item-account-group' class='w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100' value='${accGroup || ''}' readonly>`
-                : `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Account Group<span class='text-red-500'>*</span></label><select id='item-account-group' required class='w-full px-3 py-2 border border-gray-300 rounded-md'></select>`;
-            document.getElementById('item-unit-field').innerHTML = isEdit
-                ? `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Unit*</label><input type='text' id='item-unit' class='w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100' value='${unit || ''}' readonly>`
-                : `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Unit<span class='text-red-500'>*</span></label><select id='item-unit' required class='w-full px-3 py-2 border border-gray-300 rounded-md'></select>`;
-            // Set hidden input Oid
+            // Semua mode: dropdown, tidak readonly/disable
+            document.getElementById('item-group-field').innerHTML =
+                `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Group<span class='text-red-500'>*</span></label><select id='item-group' required class='w-full px-3 py-2 border border-gray-300 rounded-md'></select>`;
+            document.getElementById('item-account-group-field').innerHTML =
+                `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Account Group<span class='text-red-500'>*</span></label><select id='item-account-group' required class='w-full px-3 py-2 border border-gray-300 rounded-md'></select>`;
+            document.getElementById('item-unit-field').innerHTML =
+                `<label class='block text-gray-700 text-sm font-bold mb-2'>Item Unit<span class='text-red-500'>*</span></label><select id='item-unit' required class='w-full px-3 py-2 border border-gray-300 rounded-md'></select>`;
+            // Set value jika edit
             if (isEdit) {
-                document.getElementById('item-group-oid').value = groupOid || '';
-                document.getElementById('item-account-group-oid').value = accGroupOid || '';
-                document.getElementById('item-unit-oid').value = unitOid || '';
-            } else {
-                document.getElementById('item-group-oid').value = '';
-                document.getElementById('item-account-group-oid').value = '';
-                document.getElementById('item-unit-oid').value = '';
+                setTimeout(() => {
+                    if (groupOid) document.getElementById('item-group').value = groupOid;
+                    if (accGroupOid) document.getElementById('item-account-group').value = accGroupOid;
+                    if (unitOid) document.getElementById('item-unit').value = unitOid;
+                }, 100);
             }
+            document.getElementById('item-group-oid').value = isEdit ? (groupOid || '') : '';
+            document.getElementById('item-account-group-oid').value = isEdit ? (accGroupOid || '') : '';
+            document.getElementById('item-unit-oid').value = isEdit ? (unitOid || '') : '';
         }
     </script>
 </body>
