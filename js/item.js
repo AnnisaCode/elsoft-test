@@ -276,13 +276,41 @@ export function populateItemDropdowns() {
     }
 }
 
+function updateCacheAfterAdd(newItem) {
+    if (!allItemsCache) allItemsCache = [];
+    allItemsCache.push(newItem);
+    // Urutkan descending kode
+    allItemsCache.sort((a, b) => {
+        if (!a.Code) return 1;
+        if (!b.Code) return -1;
+        return b.Code.localeCompare(a.Code, undefined, { numeric: true, sensitivity: 'base' });
+    });
+}
+
+function updateCacheAfterEdit(editedItem) {
+    if (!allItemsCache) return;
+    const idx = allItemsCache.findIndex(i => i.Oid === editedItem.Oid);
+    if (idx !== -1) {
+        allItemsCache[idx] = editedItem;
+        allItemsCache.sort((a, b) => {
+            if (!a.Code) return 1;
+            if (!b.Code) return -1;
+            return b.Code.localeCompare(a.Code, undefined, { numeric: true, sensitivity: 'base' });
+        });
+    }
+}
+
+function updateCacheAfterDelete(oid) {
+    if (!allItemsCache) return;
+    allItemsCache = allItemsCache.filter(i => i.Oid !== oid);
+}
+
 export async function handleItemSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const oid = document.getElementById('item-oid').value;
     const companyId = localStorage.getItem('company') || 'd3170153-6b16-4397-bf89-96533ee149ee';
     const itemTypeOid = '3adfb47a-eab4-4d44-bde9-efae1bec8543';
-    // Ambil Oid dari select (tambah) atau hidden input (edit)
     const itemGroupOid = document.getElementById('item-group')?.value || document.getElementById('item-group-oid').value;
     const itemAccountGroupOid = document.getElementById('item-account-group')?.value || document.getElementById('item-account-group-oid').value;
     const itemUnitOid = document.getElementById('item-unit')?.value || document.getElementById('item-unit-oid').value;
@@ -298,21 +326,29 @@ export async function handleItemSubmit(e) {
     };
     try {
         let response;
+        let newOrEditedItem = null;
         if (oid) {
             response = await apiRequest(`https://api-app.elsoft.id/admin/api/v1/item/save?Oid=${oid}`, {
                 method: 'POST',
                 body: JSON.stringify(itemData)
             });
+            newOrEditedItem = response.data || response; // pastikan ambil data item baru
         } else {
             response = await apiRequest('https://api-app.elsoft.id/admin/api/v1/item', {
                 method: 'POST',
                 body: JSON.stringify(itemData)
             });
+            newOrEditedItem = response.data || response;
         }
         if (response && (response.success !== false || response.data)) {
             showToast(oid ? 'Item berhasil diperbarui' : 'Item berhasil ditambahkan', 'success');
             hideItemModal();
-            loadItems(1, '', true);
+            if (oid) {
+                updateCacheAfterEdit(newOrEditedItem);
+            } else {
+                updateCacheAfterAdd(newOrEditedItem);
+            }
+            filterAndRenderItems();
         } else {
             throw new Error(response && response.message ? response.message : 'Failed to save item');
         }
@@ -340,7 +376,8 @@ export async function deleteItem(oid) {
         });
         if (response.success) {
             showToast('Item berhasil dihapus', 'success');
-            loadItems(1, '', true);
+            updateCacheAfterDelete(oid);
+            filterAndRenderItems();
         } else {
             if (response && typeof response === 'object' && (response.message || response._status)) {
                 showToast('Gagal menghapus item: ' + (response.message || JSON.stringify(response)), 'error');
