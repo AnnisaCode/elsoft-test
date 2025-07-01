@@ -7,6 +7,9 @@ let currentTransactions = [];
 // State untuk pagination
 let currentPage = 1;
 let lastPage = 1;
+let totalData = 0;
+const perPage = 20; // Default, tidak bisa diubah user
+let searchTerm = '';
 
 // API Configuration
 const API_CONFIG = {
@@ -386,11 +389,13 @@ async function apiRequest(url, options = {}) {
 
 // Items Management
 async function loadItems(page = 1, search = '') {
+    currentPage = page;
+    searchTerm = search;
     try {
         const tbody = document.getElementById('items-table-body');
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="10" class="px-6 py-4 text-center text-gray-500">
                     <div class="flex justify-center items-center">
                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                         <span class="ml-2">Memuat data...</span>
@@ -399,7 +404,7 @@ async function loadItems(page = 1, search = '') {
             </tr>
         `;
 
-        let url = `${API_CONFIG.APP_BASE}/item/list?page=${page}`;
+        let url = `${API_CONFIG.APP_BASE}/item/list?page=${page}&per_page=${perPage}`;
         if (search) {
             url += `&search=${encodeURIComponent(search)}`;
         }
@@ -416,11 +421,11 @@ async function loadItems(page = 1, search = '') {
         // Log response
         console.log('Load Items Response:', data);
 
-        // Perbaikan: cek jika data.data adalah array
         if (Array.isArray(data.data)) {
             currentItems = data.data;
             currentPage = data.meta?.current_page || 1;
             lastPage = data.meta?.last_page || 1;
+            totalData = data.meta?.total || data.CountTotalFooter || 0;
             renderItems(currentItems);
             renderPagination();
         } else {
@@ -431,12 +436,19 @@ async function loadItems(page = 1, search = '') {
         showToast('Gagal memuat data item: ' + error.message, 'error');
         document.getElementById('items-table-body').innerHTML = `
             <tr>
-                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="10" class="px-6 py-4 text-center text-gray-500">
                     Gagal memuat data. <button onclick="loadItems()" class="text-primary hover:underline">Coba lagi</button>
                 </td>
             </tr>
         `;
     }
+}
+
+function formatSalesAmount(val) {
+    if (!val) return '0.00';
+    let num = parseFloat(val.toString().replace(/,/g, '.'));
+    if (isNaN(num)) return '0.00';
+    return num.toFixed(2);
 }
 
 function renderItems(items) {
@@ -472,7 +484,7 @@ function renderItems(items) {
 
     tbody.innerHTML = items.map(item => `
         <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.SalesAmountMinimum || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatSalesAmount(item.SalesAmountMinimum)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Label || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.CompanyName || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Weight || '-'}</td>
@@ -495,19 +507,49 @@ function renderPagination() {
     if (!container) {
         container = document.createElement('div');
         container.id = containerId;
-        container.className = 'flex justify-center items-center mt-4 space-x-2';
+        container.className = 'flex flex-col items-center mt-4 space-y-2';
         document.getElementById('item-page').appendChild(container);
     }
     container.innerHTML = `
-        <button onclick="loadItems(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 rounded bg-gray-200 text-gray-700 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}">Prev</button>
-        <span class="px-3">Halaman ${currentPage} dari ${lastPage}</span>
-        <button onclick="loadItems(${currentPage + 1})" ${currentPage === lastPage ? 'disabled' : ''} class="px-3 py-1 rounded bg-gray-200 text-gray-700 ${currentPage === lastPage ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}">Next</button>
+        <div class="flex items-center space-x-2 mb-2">
+            <button id="prevPageBtn" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 rounded bg-gray-200 text-gray-700 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}">Prev</button>
+            <span>Halaman</span>
+            <input type="number" min="1" max="${lastPage}" value="${currentPage}" id="pageInput" class="w-16 px-2 py-1 border rounded text-center" style="width: 50px;" />
+            <span>dari ${lastPage}</span>
+            <button id="nextPageBtn" ${currentPage === lastPage ? 'disabled' : ''} class="px-3 py-1 rounded bg-gray-200 text-gray-700 ${currentPage === lastPage ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}">Next</button>
+        </div>
+        <div class="flex items-center space-x-2 mb-2">
+            <span>Total Data: ${totalData}</span>
+        </div>
     `;
+    setTimeout(() => {
+        const pageInput = document.getElementById('pageInput');
+        if (pageInput) {
+            pageInput.addEventListener('change', function () {
+                let val = parseInt(this.value);
+                if (isNaN(val) || val < 1) val = 1;
+                if (val > lastPage) val = lastPage;
+                loadItems(val, searchTerm);
+            });
+        }
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', function () {
+                if (currentPage > 1) loadItems(currentPage - 1, searchTerm);
+            });
+        }
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', function () {
+                if (currentPage < lastPage) loadItems(currentPage + 1, searchTerm);
+            });
+        }
+    }, 100);
 }
 
 function filterItems() {
-    const searchTerm = document.getElementById('item-search').value.toLowerCase();
-    loadItems(1, searchTerm);
+    const search = document.getElementById('item-search').value.toLowerCase();
+    loadItems(1, search);
 }
 
 function showItemModal(item = null) {
