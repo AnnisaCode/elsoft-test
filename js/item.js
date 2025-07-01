@@ -206,22 +206,56 @@ export function hideItemModal() {
     document.getElementById('item-modal').classList.add('hidden');
 }
 
+export async function loadItemMasters() {
+    // Ambil data master dari endpoint yang benar
+    const token = localStorage.getItem('authToken');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    // Item Group
+    const groupRes = await fetch('https://api-app.elsoft.id/admin/api/v1/data/itemgroup', { headers });
+    itemGroups = await groupRes.json();
+    // Item Account Group
+    const accGroupRes = await fetch('https://api-app.elsoft.id/admin/api/v1/data/itemaccountgroup', { headers });
+    itemAccountGroups = await accGroupRes.json();
+    // Item Unit
+    const unitRes = await fetch('https://api-app.elsoft.id/admin/api/v1/data/itemunit', { headers });
+    itemUnits = await unitRes.json();
+    populateItemDropdowns();
+}
+
+export function populateItemDropdowns() {
+    // Untuk mode tambah (dropdown)
+    const groupSelect = document.getElementById('item-group');
+    if (groupSelect) {
+        groupSelect.innerHTML = itemGroups.map(g => `<option value="${g.Oid}">${g.Name || g.Label}</option>`).join('');
+    }
+    const accGroupSelect = document.getElementById('item-account-group');
+    if (accGroupSelect) {
+        accGroupSelect.innerHTML = itemAccountGroups.map(g => `<option value="${g.Oid}">${g.Name || g.Label}</option>`).join('');
+    }
+    const unitSelect = document.getElementById('item-unit');
+    if (unitSelect) {
+        unitSelect.innerHTML = itemUnits.map(u => `<option value="${u.Oid}">${u.Name || u.Label}</option>`).join('');
+    }
+}
+
 export async function handleItemSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const oid = document.getElementById('item-oid').value;
-    // Ambil companyId dari localStorage agar sesuai best practice
     const companyId = localStorage.getItem('company') || 'd3170153-6b16-4397-bf89-96533ee149ee';
-    // Oid tipe Product dari dokumentasi
     const itemTypeOid = '3adfb47a-eab4-4d44-bde9-efae1bec8543';
+    // Ambil Oid dari select (tambah) atau hidden input (edit)
+    const itemGroupOid = document.getElementById('item-group')?.value || document.getElementById('item-group-oid').value;
+    const itemAccountGroupOid = document.getElementById('item-account-group')?.value || document.getElementById('item-account-group-oid').value;
+    const itemUnitOid = document.getElementById('item-unit')?.value || document.getElementById('item-unit-oid').value;
     const itemData = {
         Company: companyId,
         ItemType: itemTypeOid,
         Code: formData.get('item-code'),
         Label: formData.get('item-title'),
-        ItemGroup: '55692914-7402-4dd8-adec-40a823222b3e',
-        ItemAccountGroup: '4fc9683e-f22b-47c6-9525-b054ba24ea42',
-        ItemUnit: '5daf6a23-472d-4921-9945-57674d5fd1aa',
+        ItemGroup: itemGroupOid,
+        ItemAccountGroup: itemAccountGroupOid,
+        ItemUnit: itemUnitOid,
         IsActive: document.getElementById('item-active').checked ? 'true' : 'false'
     };
     try {
@@ -237,7 +271,6 @@ export async function handleItemSubmit(e) {
                 body: JSON.stringify(itemData)
             });
         }
-        console.log('API save item response:', response);
         if (response && (response.success !== false || response.data)) {
             showToast(oid ? 'Item berhasil diperbarui' : 'Item berhasil ditambahkan', 'success');
             hideItemModal();
@@ -284,22 +317,6 @@ export async function deleteItem(oid) {
             showToast('Gagal menghapus item: ' + error, 'error');
         }
     }
-}
-
-export async function loadItemMasters(companyId = null) {
-    // Tidak perlu fetch data dari app.elsoft.id lagi
-    // Kosongkan fungsi ini atau isi dengan data statis jika perlu
-    // Atau biarkan dropdown tetap kosong
-    return;
-}
-
-export function populateItemDropdowns() {
-    const groupSelect = document.getElementById('item-group');
-    groupSelect.innerHTML = itemGroups.map(g => `<option value="${g.Oid}">${g.Label}</option>`).join('');
-    const accGroupSelect = document.getElementById('item-account-group');
-    accGroupSelect.innerHTML = itemAccountGroups.map(g => `<option value="${g.Oid}">${g.Label}</option>`).join('');
-    const unitSelect = document.getElementById('item-unit');
-    unitSelect.innerHTML = itemUnits.map(u => `<option value="${u.Oid}">${u.Label}</option>`).join('');
 }
 
 // Helper
