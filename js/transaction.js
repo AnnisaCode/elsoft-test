@@ -237,7 +237,7 @@ export function showTransactionModal(transaction = null) {
         title.textContent = 'Tambah Transaksi';
         document.getElementById('transaction-form').reset();
         document.getElementById('transaction-oid').value = '';
-        document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('transaction-date').value = new Date().toISOString().slice(0, 10);
         let companyName = '';
         try {
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -526,7 +526,7 @@ function renderDetailAddButton(parentOid) {
         addBtn = document.createElement('button');
         addBtn.id = 'btn-add-detail-item';
         addBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mb-2 float-right';
-        addBtn.textContent = '+ Add';
+        addBtn.textContent = '+ Detail';
         detailsTab.insertBefore(addBtn, detailsTab.firstChild);
     }
     addBtn.onclick = () => showDetailItemModal('add', parentOid);
