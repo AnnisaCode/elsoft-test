@@ -3,13 +3,21 @@ import { formatCurrency, formatDate, formatDateShort, getStatusClass, showToast 
 
 // Variabel global terkait transaksi
 export let currentTransactions = [];
+export let currentTransactionPage = 1;
+export let lastTransactionPage = 1;
+export let totalTransactionData = 0;
+export const perPageTransaction = 20;
+export let searchTransactionTerm = '';
+export let allTransactionsCache = null;
 
-export async function loadTransactions() {
+export async function loadTransactions(page = 1, search = '', forceReload = false) {
+    currentTransactionPage = page;
+    searchTransactionTerm = search;
     try {
         const tbody = document.getElementById('transactions-table-body');
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                     <div class="flex justify-center items-center">
                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                         <span class="ml-2">Memuat data...</span>
@@ -17,34 +25,71 @@ export async function loadTransactions() {
                 </td>
             </tr>
         `;
-        const response = await apiRequest('https://api-app.elsoft.id/admin/api/v1/stockissue/list');
-        console.log('API stockissue/list response:', response);
-
-        let transactions = [];
-        if (Array.isArray(response)) {
-            transactions = response;
-        } else if (response.data && Array.isArray(response.data)) {
-            transactions = response.data;
-        } else if (response.list && Array.isArray(response.list)) {
-            transactions = response.list;
+        // Jika sudah pernah load dan tidak forceReload, pakai cache
+        if (allTransactionsCache && !forceReload) {
+            filterAndRenderTransactions();
+            return;
         }
-
-        if (transactions.length > 0) {
-            currentTransactions = transactions;
-            renderTransactions(currentTransactions);
-        } else {
-            throw new Error(response.message || 'Tidak ada data transaksi atau struktur response tidak sesuai.');
-        }
+        // Ambil seluruh data dari semua page
+        let allTransactions = [];
+        let pageNum = 1;
+        let lastPageNum = 1;
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        };
+        do {
+            let url = `https://api-app.elsoft.id/admin/api/v1/stockissue/list?page=${pageNum}&per_page=100`;
+            const response = await fetch(url, { headers });
+            let data = await response.json();
+            let transactions = [];
+            if (Array.isArray(data.data)) {
+                transactions = data.data;
+                lastPageNum = data.meta?.last_page || 1;
+                totalTransactionData = data.meta?.total || data.CountTotalFooter || 0;
+            } else if (Array.isArray(data)) {
+                transactions = data;
+                lastPageNum = 1;
+                totalTransactionData = data.length;
+            } else if (data.list && Array.isArray(data.list)) {
+                transactions = data.list;
+                lastPageNum = data.meta?.last_page || 1;
+                totalTransactionData = data.meta?.total || data.list.length;
+            }
+            allTransactions = allTransactions.concat(transactions);
+            pageNum++;
+        } while (pageNum <= lastPageNum);
+        allTransactionsCache = allTransactions;
+        filterAndRenderTransactions();
     } catch (error) {
         showToast('Gagal memuat data transaksi: ' + error.message, 'error');
         document.getElementById('transactions-table-body').innerHTML = `
             <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                     Gagal memuat data. <button onclick="loadTransactions()" class="text-primary hover:underline">Coba lagi</button>
                 </td>
             </tr>
         `;
     }
+}
+
+function filterAndRenderTransactions() {
+    let filtered = allTransactionsCache;
+    if (searchTransactionTerm) {
+        const term = searchTransactionTerm.toLowerCase();
+        filtered = allTransactionsCache.filter(transaction =>
+            (transaction.CompanyName && transaction.CompanyName.toLowerCase().includes(term)) ||
+            (transaction.Code && transaction.Code.toLowerCase().includes(term)) ||
+            (transaction.Note && transaction.Note.toLowerCase().includes(term)) ||
+            (transaction.AccountName && transaction.AccountName.toLowerCase().includes(term))
+        );
+    }
+    currentTransactions = filtered;
+    lastTransactionPage = Math.ceil(currentTransactions.length / perPageTransaction);
+    const startIdx = (currentTransactionPage - 1) * perPageTransaction;
+    const endIdx = startIdx + perPageTransaction;
+    renderTransactions(currentTransactions.slice(startIdx, endIdx));
+    renderTransactionPagination();
 }
 
 export function renderTransactions(transactions) {
@@ -65,7 +110,7 @@ export function renderTransactions(transactions) {
             <td class="px-4 py-2">${transaction.CompanyName || '-'}</td>
             <td class="px-4 py-2">${transaction.Code || '-'}</td>
             <td class="px-4 py-2">${transaction.Note || '-'}</td>
-            <td class="px-4 py-2 text-center">${transaction.Date || '-'}</td>
+            <td class="px-4 py-2 text-center">${formatDateShort(transaction.Date) || '-'}</td>
             <td class="px-4 py-2">${transaction.AccountName || '-'}</td>
             <td class="px-4 py-2 text-center">${transaction.StatusName || '-'}</td>
             <td class="px-4 py-2 text-center">
@@ -76,14 +121,56 @@ export function renderTransactions(transactions) {
     `).join('');
 }
 
+export function renderTransactionPagination() {
+    const containerId = 'transactions-pagination';
+    let container = document.getElementById(containerId);
+    if (!container) {
+        container = document.createElement('div');
+        container.id = containerId;
+        container.className = 'flex flex-col items-center mt-4 space-y-2';
+        document.getElementById('transaction-page').appendChild(container);
+    }
+    container.innerHTML = `
+        <div class="flex items-center space-x-2 mb-2">
+            <button id="prevTransactionPageBtn" ${currentTransactionPage === 1 ? 'disabled' : ''} class="px-3 py-1 rounded bg-gray-200 text-gray-700 ${currentTransactionPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}">Prev</button>
+            <span>Halaman</span>
+            <input type="number" min="1" max="${lastTransactionPage}" value="${currentTransactionPage}" id="transactionPageInput" class="w-16 px-2 py-1 border rounded text-center" style="width: 50px;" />
+            <span>dari ${lastTransactionPage}</span>
+            <button id="nextTransactionPageBtn" ${currentTransactionPage === lastTransactionPage ? 'disabled' : ''} class="px-3 py-1 rounded bg-gray-200 text-gray-700 ${currentTransactionPage === lastTransactionPage ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}">Next</button>
+        </div>
+        <div class="flex items-center space-x-2 mb-2">
+            <span>Total Data: ${totalTransactionData}</span>
+        </div>
+    `;
+    setTimeout(() => {
+        const pageInput = document.getElementById('transactionPageInput');
+        if (pageInput) {
+            pageInput.addEventListener('change', function () {
+                let val = parseInt(this.value);
+                if (isNaN(val) || val < 1) val = 1;
+                if (val > lastTransactionPage) val = lastTransactionPage;
+                loadTransactions(val, searchTransactionTerm);
+            });
+        }
+        const prevPageBtn = document.getElementById('prevTransactionPageBtn');
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', function () {
+                if (currentTransactionPage > 1) loadTransactions(currentTransactionPage - 1, searchTransactionTerm);
+            });
+        }
+        const nextPageBtn = document.getElementById('nextTransactionPageBtn');
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', function () {
+                if (currentTransactionPage < lastTransactionPage) loadTransactions(currentTransactionPage + 1, searchTransactionTerm);
+            });
+        }
+    }, 100);
+}
+
 export function filterTransactions() {
-    const searchTerm = document.getElementById('transaction-search').value.toLowerCase();
-    const filteredTransactions = currentTransactions.filter(transaction =>
-        (transaction.docno && transaction.docno.toLowerCase().includes(searchTerm)) ||
-        (transaction.customer && transaction.customer.toLowerCase().includes(searchTerm)) ||
-        (transaction.status && transaction.status.toLowerCase().includes(searchTerm))
-    );
-    renderTransactions(filteredTransactions);
+    searchTransactionTerm = document.getElementById('transaction-search').value.toLowerCase();
+    currentTransactionPage = 1;
+    filterAndRenderTransactions();
 }
 
 export function showTransactionModal(transaction = null) {
