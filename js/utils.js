@@ -71,4 +71,46 @@ export function showToast(message, type = 'info') {
 
 export function hideToast() {
     document.getElementById('toast').classList.add('hidden');
+}
+
+export function navigateToPage(page) {
+    // Hide all pages
+    document.querySelectorAll('#main-content > div').forEach(div => {
+        div.classList.add('hidden');
+    });
+
+    // Update navigation active state
+    document.querySelectorAll('.nav-link, .nav-link-mobile').forEach(link => {
+        link.classList.remove('border-primary', 'text-primary', 'bg-gray-100');
+        link.classList.add('border-transparent', 'text-gray-500');
+    });
+
+    // Show requested page
+    const pageElement = document.getElementById(`${page}-page`);
+    if (pageElement) {
+        pageElement.classList.remove('hidden');
+        pageElement.classList.add('fade-in');
+
+        // Activate navigation link
+        const activeLink = document.querySelector(`[href="#${page}"]`);
+        if (activeLink) {
+            activeLink.classList.remove('border-transparent', 'text-gray-500');
+            activeLink.classList.add('border-primary', 'text-primary');
+            if (activeLink.classList.contains('nav-link-mobile')) {
+                activeLink.classList.add('bg-gray-100');
+            }
+        }
+
+        // Load data for specific pages
+        if (page === 'item' && localStorage.getItem('authToken')) {
+            if (window.loadItems) window.loadItems();
+        } else if (page === 'transaction' && localStorage.getItem('authToken')) {
+            if (window.loadTransactions) window.loadTransactions();
+        }
+    }
+
+    // Update URL hash
+    if (window.location.hash !== `#${page}`) {
+        window.location.hash = page;
+    }
 } 

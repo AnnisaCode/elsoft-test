@@ -344,4 +344,19 @@ window.onclick = function (event) {
     if (event.target === transactionModal) {
         hideTransactionModal();
     }
-}; 
+};
+
+window.logout = logout;
+window.showItemModal = showItemModal;
+window.editItem = editItem;
+window.deleteItem = deleteItem;
+window.hideItemModal = hideItemModal;
+window.handleItemSubmit = handleItemSubmit;
+window.loadItems = loadItems;
+
+window.showTransactionModal = showTransactionModal;
+window.editTransaction = editTransaction;
+window.deleteTransaction = deleteTransaction;
+window.hideTransactionModal = hideTransactionModal;
+window.handleTransactionSubmit = handleTransactionSubmit;
+window.loadTransactions = loadTransactions; 
