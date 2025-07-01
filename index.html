@@ -379,6 +379,63 @@
         </div>
     </div>
 
+    <!-- Transaction Detail Drawer -->
+    <div id="transaction-detail-drawer"
+        class="fixed top-0 right-0 h-full w-full max-w-2xl bg-white shadow-lg z-50 transform translate-x-full transition-transform duration-300 hidden">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h2 class="text-xl font-bold">Detail Transaksi</h2>
+            <button id="close-transaction-detail-drawer"
+                class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        <div class="p-4">
+            <div class="flex space-x-4 mb-4">
+                <button id="tab-main" class="tab-btn font-semibold border-b-2 border-primary">Main</button>
+                <button id="tab-details" class="tab-btn font-semibold text-gray-500">Details</button>
+            </div>
+            <div id="transaction-detail-main" class="tab-content">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><b>Company</b>
+                        <div id="detail-company"></div>
+                    </div>
+                    <div><b>Code</b>
+                        <div id="detail-code"></div>
+                    </div>
+                    <div><b>Date</b>
+                        <div id="detail-date"></div>
+                    </div>
+                    <div><b>Account</b>
+                        <div id="detail-account"></div>
+                    </div>
+                    <div><b>Status</b>
+                        <div id="detail-status"></div>
+                    </div>
+                    <div><b>Note</b>
+                        <div id="detail-note"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="transaction-detail-details" class="tab-content hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2">No</th>
+                            <th class="px-4 py-2">Item</th>
+                            <th class="px-4 py-2">Quantity</th>
+                            <th class="px-4 py-2">Item Unit</th>
+                            <th class="px-4 py-2">Note</th>
+                            <th class="px-4 py-2">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-detail-items-table" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="6" class="text-center text-gray-400">No data</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="main.js"></script>
     <script>
         // Render ulang field group/account/unit sesuai mode tambah/edit

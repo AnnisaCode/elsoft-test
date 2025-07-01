@@ -106,7 +106,7 @@ export function renderTransactions(transactions) {
         return;
     }
     tbody.innerHTML = transactions.map((transaction, idx) => `
-        <tr class="hover:bg-gray-50">
+        <tr class="hover:bg-gray-50" data-oid="${transaction.Oid}">
             <td class="px-4 py-2 text-center">${transaction.RowCountNumber || idx + 1}</td>
             <td class="px-4 py-2">${transaction.CompanyName || '-'}</td>
             <td class="px-4 py-2">${transaction.Code || '-'}</td>
@@ -116,10 +116,26 @@ export function renderTransactions(transactions) {
             <td class="px-4 py-2 text-center">${transaction.StatusName || '-'}</td>
             <td class="px-4 py-2 text-center">
                 <button onclick="editTransaction('${transaction.Oid}')" class="text-primary hover:text-secondary mr-2">Edit</button>
-                <button onclick="deleteTransaction('${transaction.Oid}')" class="text-red-600 hover:text-red-900">Hapus</button>
+                <button onclick="deleteTransaction('${transaction.Oid}')" class="text-red-600 hover:text-red-900 mr-2">Hapus</button>
+                <button class="btn-transaction-detail text-blue-600 hover:text-blue-900" data-oid="${transaction.Oid}">Detail</button>
             </td>
         </tr>
     `).join('');
+    // Tambahkan event listener double click pada baris
+    setTimeout(() => {
+        document.querySelectorAll('#transactions-table-body tr').forEach(tr => {
+            tr.ondblclick = () => {
+                const oid = tr.getAttribute('data-oid');
+                if (oid) openTransactionDetailDrawer(oid);
+            };
+        });
+        document.querySelectorAll('.btn-transaction-detail').forEach(btn => {
+            btn.onclick = e => {
+                e.stopPropagation();
+                openTransactionDetailDrawer(btn.dataset.oid);
+            };
+        });
+    }, 100);
 }
 
 export function renderTransactionPagination() {
@@ -405,4 +421,94 @@ export async function deleteTransaction(oid) {
     } catch (error) {
         showToast('Gagal menghapus transaksi: ' + error.message, 'error');
     }
+}
+
+// Drawer logic
+export async function openTransactionDetailDrawer(oid) {
+    const drawer = document.getElementById('transaction-detail-drawer');
+    // Reset content
+    document.getElementById('detail-company').textContent = '';
+    document.getElementById('detail-code').textContent = '';
+    document.getElementById('detail-date').textContent = '';
+    document.getElementById('detail-account').textContent = '';
+    document.getElementById('detail-status').textContent = '';
+    document.getElementById('detail-note').textContent = '';
+    document.getElementById('transaction-detail-items-table').innerHTML = '<tr><td colspan="6" class="text-center text-gray-400">Loading...</td></tr>';
+    drawer.classList.remove('hidden');
+    setTimeout(() => drawer.classList.remove('translate-x-full'), 10);
+
+    // Fetch parent
+    let parent = null;
+    try {
+        const token = localStorage.getItem('authToken');
+        const res = await fetch(`https://api-app.elsoft.id/admin/api/v1/stockissue/${oid}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        parent = await res.json();
+    } catch { }
+    if (parent) {
+        document.getElementById('detail-company').textContent = parent.CompanyName || '-';
+        document.getElementById('detail-code').textContent = parent.Code || '-';
+        document.getElementById('detail-date').textContent = parent.Date ? parent.Date.split('T')[0] : '-';
+        document.getElementById('detail-account').textContent = parent.AccountName || '-';
+        document.getElementById('detail-status').textContent = parent.StatusName || '-';
+        document.getElementById('detail-note').textContent = parent.Note || '-';
+    }
+    // Fetch child
+    let items = [];
+    try {
+        const token = localStorage.getItem('authToken');
+        const res = await fetch(`https://api-app.elsoft.id/admin/api/v1/stockissue/detail?StockIssue=${oid}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        items = Array.isArray(data) ? data : (data.data || []);
+    } catch { }
+    if (items.length > 0) {
+        document.getElementById('transaction-detail-items-table').innerHTML = items.map((item, idx) => `
+            <tr>
+                <td class="px-4 py-2 text-center">${idx + 1}</td>
+                <td class="px-4 py-2">${item.ItemName || '-'}</td>
+                <td class="px-4 py-2 text-center">${item.Quantity || '-'}</td>
+                <td class="px-4 py-2">${item.ItemUnitName || '-'}</td>
+                <td class="px-4 py-2">${item.Note || '-'}</td>
+                <td class="px-4 py-2 text-center">-</td>
+            </tr>
+        `).join('');
+    } else {
+        document.getElementById('transaction-detail-items-table').innerHTML = '<tr><td colspan="6" class="text-center text-gray-400">No data</td></tr>';
+    }
+}
+
+// Tab switching & close drawer
+if (typeof window !== 'undefined') {
+    window.addEventListener('DOMContentLoaded', () => {
+        const drawer = document.getElementById('transaction-detail-drawer');
+        const closeBtn = document.getElementById('close-transaction-detail-drawer');
+        const tabMain = document.getElementById('tab-main');
+        const tabDetails = document.getElementById('tab-details');
+        const mainContent = document.getElementById('transaction-detail-main');
+        const detailsContent = document.getElementById('transaction-detail-details');
+        if (closeBtn) closeBtn.onclick = () => { drawer.classList.add('translate-x-full'); setTimeout(() => drawer.classList.add('hidden'), 300); };
+        if (tabMain && tabDetails && mainContent && detailsContent) {
+            tabMain.onclick = () => {
+                tabMain.classList.add('border-primary'); tabMain.classList.remove('text-gray-500');
+                tabDetails.classList.remove('border-primary'); tabDetails.classList.add('text-gray-500');
+                mainContent.classList.remove('hidden'); detailsContent.classList.add('hidden');
+            };
+            tabDetails.onclick = () => {
+                tabDetails.classList.add('border-primary'); tabDetails.classList.remove('text-gray-500');
+                tabMain.classList.remove('border-primary'); tabMain.classList.add('text-gray-500');
+                detailsContent.classList.remove('hidden'); mainContent.classList.add('hidden');
+            };
+        }
+        // Tambahkan event ke tombol Detail dan double click baris
+        setTimeout(() => {
+            document.querySelectorAll('.btn-transaction-detail').forEach(btn => {
+                btn.onclick = e => { e.stopPropagation(); openTransactionDetailDrawer(btn.dataset.oid); };
+            });
+            document.querySelectorAll('#transactions-table-body tr').forEach(tr => {
+                tr.ondblclick = () => {
+                    const oid = tr.getAttribute('data-oid');
+                    if (oid) openTransactionDetailDrawer(oid);
+                };
+            });
+        }, 500);
+    });
 } 
