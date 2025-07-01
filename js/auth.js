@@ -40,6 +40,7 @@ export async function handleLogin(e) {
             }
             localStorage.setItem('authToken', result.access_token || (result.data && result.data.token));
             localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('company', user.Company || 'd3170153-6b16-4397-bf89-96533ee149ee');
             showToast('Login berhasil!', 'success');
             showNavbar();
             navigateToPage('item');

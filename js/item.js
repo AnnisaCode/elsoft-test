@@ -290,24 +290,9 @@ export async function loadItemMasters(companyId = null) {
             if (user && user.Company) companyId = user.Company;
         } catch { }
     }
+    // Hardcode companyId jika tetap tidak ada
     if (!companyId) {
-        // Jika tidak ada company id, tampilkan error di semua dropdown dan disable tombol save
-        const groupSelect = document.getElementById('item-group');
-        const accGroupSelect = document.getElementById('item-account-group');
-        const unitSelect = document.getElementById('item-unit');
-        const saveBtn = document.querySelector('#item-form button[type="submit"]');
-        function setDropdownError(select, msg) {
-            if (select) {
-                select.innerHTML = `<option value="">${msg}</option>`;
-                select.disabled = true;
-            }
-        }
-        setDropdownError(groupSelect, 'Company ID tidak ditemukan');
-        setDropdownError(accGroupSelect, 'Company ID tidak ditemukan');
-        setDropdownError(unitSelect, 'Company ID tidak ditemukan');
-        if (saveBtn) saveBtn.disabled = true;
-        console.error('Company ID tidak ditemukan di localStorage maupun data item.');
-        return;
+        companyId = 'd3170153-6b16-4397-bf89-96533ee149ee';
     }
     let error = false;
     // Item Group
