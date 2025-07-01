@@ -114,10 +114,10 @@ export function renderTransactions(transactions) {
             <td class="px-4 py-2 text-center">${formatDateShort(transaction.Date) || '-'}</td>
             <td class="px-4 py-2">${transaction.AccountName || '-'}</td>
             <td class="px-4 py-2 text-center">${transaction.StatusName || '-'}</td>
-            <td class="px-4 py-2 text-center">
-                <button onclick="editTransaction('${transaction.Oid}')" class="text-primary hover:text-secondary mr-2">Edit</button>
-                <button onclick="deleteTransaction('${transaction.Oid}')" class="text-red-600 hover:text-red-900 mr-2">Hapus</button>
-                <button class="btn-transaction-detail text-blue-600 hover:text-blue-900" data-oid="${transaction.Oid}">Detail</button>
+            <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="editTransaction('${transaction.Oid}')" class="text-primary hover:text-secondary mr-2 font-medium">Edit</button>
+                <button onclick="deleteTransaction('${transaction.Oid}')" class="text-red-600 hover:text-red-900 mr-2 font-medium">Hapus</button>
+                <button class="btn-transaction-detail text-blue-600 hover:text-blue-900 font-medium" data-oid="${transaction.Oid}">Detail</button>
             </td>
         </tr>
     `).join('');
@@ -457,9 +457,17 @@ export async function openTransactionDetailDrawer(oid) {
     try {
         const token = localStorage.getItem('authToken');
         const res = await fetch(`https://api-app.elsoft.id/admin/api/v1/stockissue/detail?StockIssue=${oid}`, { headers: { 'Authorization': `Bearer ${token}` } });
-        const data = await res.json();
-        items = Array.isArray(data) ? data : (data.data || []);
-    } catch { }
+        if (res.ok) {
+            const data = await res.json();
+            items = Array.isArray(data) ? data : (data.data || []);
+        } else if (res.status === 404) {
+            // Tidak ada data detail, biarkan items kosong, jangan panggil res.json()
+        } else {
+            // Error lain, jangan tampilkan apapun ke console
+        }
+    } catch (e) {
+        // Jangan tampilkan error apapun ke console
+    }
     if (items.length > 0) {
         document.getElementById('transaction-detail-items-table').innerHTML = items.map((item, idx) => `
             <tr>
@@ -474,6 +482,96 @@ export async function openTransactionDetailDrawer(oid) {
     } else {
         document.getElementById('transaction-detail-items-table').innerHTML = '<tr><td colspan="6" class="text-center text-gray-400">No data</td></tr>';
     }
+    renderDetailAddButton(oid);
+}
+
+// Tambah tombol Add di tab Details drawer
+function renderDetailAddButton(parentOid) {
+    const detailsTab = document.getElementById('transaction-detail-details');
+    if (!detailsTab) return;
+    let addBtn = document.getElementById('btn-add-detail-item');
+    if (!addBtn) {
+        addBtn = document.createElement('button');
+        addBtn.id = 'btn-add-detail-item';
+        addBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mb-2 float-right';
+        addBtn.textContent = '+ Add';
+        detailsTab.insertBefore(addBtn, detailsTab.firstChild);
+    }
+    addBtn.onclick = () => showDetailItemModal('add', parentOid);
+}
+
+// Show modal add/edit detail
+function showDetailItemModal(mode, parentOid, detail = null) {
+    const modal = document.getElementById('transaction-detail-item-modal');
+    const title = document.getElementById('transaction-detail-item-modal-title');
+    const form = document.getElementById('transaction-detail-item-form');
+    form.reset();
+    document.getElementById('detail-item-oid').value = detail && detail.Oid ? detail.Oid : '';
+    document.getElementById('detail-qty').value = detail && detail.Quantity ? detail.Quantity : 1;
+    document.getElementById('detail-note').value = detail && detail.Note ? detail.Note : '';
+    // Dummy dropdown
+    const itemSelect = document.getElementById('detail-item');
+    itemSelect.innerHTML = '<option value="item1">Item 1</option><option value="item2">Item 2</option>';
+    itemSelect.value = detail && detail.Item ? detail.Item : '';
+    const unitSelect = document.getElementById('detail-unit');
+    unitSelect.innerHTML = '<option value="unit1">PCS</option><option value="unit2">BOX</option>';
+    unitSelect.value = detail && detail.ItemUnit ? detail.ItemUnit : '';
+    title.textContent = mode === 'add' ? 'Tambah Detail' : 'Edit Detail';
+    modal.classList.remove('hidden');
+    // Simpan parentOid di form dataset
+    form.dataset.parentOid = parentOid;
+    form.dataset.mode = mode;
+}
+
+// Close modal
+function closeDetailItemModal() {
+    document.getElementById('transaction-detail-item-modal').classList.add('hidden');
+}
+
+// Handle submit detail
+async function handleDetailItemSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const parentOid = form.dataset.parentOid;
+    const mode = form.dataset.mode;
+    const item = document.getElementById('detail-item').value;
+    const qty = document.getElementById('detail-qty').value;
+    const unit = document.getElementById('detail-unit').value;
+    const note = document.getElementById('detail-note').value;
+    const oid = document.getElementById('detail-item-oid').value;
+    if (!item || !qty || !unit) return alert('Semua field wajib diisi!');
+    const token = localStorage.getItem('authToken');
+    let url = `https://api-app.elsoft.id/admin/api/v1/stockissue/detail?StockIssue=${parentOid}`;
+    if (mode === 'add') url += '&Oid=NONE';
+    const body = {
+        Item: item,
+        Quantity: qty,
+        ItemUnit: unit,
+        Note: note
+    };
+    if (mode === 'edit') body.Oid = oid;
+    try {
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        closeDetailItemModal();
+        // Refresh detail table
+        if (window.openTransactionDetailDrawer) openTransactionDetailDrawer(parentOid);
+    } catch { }
+}
+
+// Event listener modal
+if (typeof window !== 'undefined') {
+    window.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('transaction-detail-item-form');
+        if (form) form.onsubmit = handleDetailItemSubmit;
+        const cancelBtn = document.getElementById('detail-item-cancel');
+        if (cancelBtn) cancelBtn.onclick = closeDetailItemModal;
+        const closeBtn = document.getElementById('close-detail-item-modal');
+        if (closeBtn) closeBtn.onclick = closeDetailItemModal;
+    });
 }
 
 // Tab switching & close drawer
