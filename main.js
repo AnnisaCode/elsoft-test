@@ -6,7 +6,7 @@ let currentTransactions = [];
 
 // API Configuration
 const API_CONFIG = {
-    AUTH_BASE: 'https://api-core.elsoft.id/portal/api',
+    AUTH_BASE: 'https://a pi-core.elsoft.id/portal/api',
     APP_BASE: 'https://api-app.elsoft.id/admin/api/v1'
 };
 
@@ -395,15 +395,28 @@ async function loadItems() {
             </tr>
         `;
 
-        const response = await apiRequest(`${API_CONFIG.APP_BASE}/item/list`);
+        const url = `${API_CONFIG.APP_BASE}/item/list`;
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+        };
+        // Log URL dan headers
+        console.log('Load Items URL:', url);
+        console.log('Load Items Headers:', headers);
 
-        if (response.success && response.data) {
-            currentItems = response.data;
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+        // Log response
+        console.log('Load Items Response:', data);
+
+        if (Array.isArray(data.data)) {
+            currentItems = data.data;
             renderItems(currentItems);
         } else {
-            throw new Error(response.message || 'Failed to load items');
+            throw new Error(data.message || 'Failed to load items');
         }
     } catch (error) {
+        console.error('Load items error:', error);
         showToast('Gagal memuat data item: ' + error.message, 'error');
         document.getElementById('items-table-body').innerHTML = `
             <tr>
