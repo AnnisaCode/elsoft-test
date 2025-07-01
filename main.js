@@ -6,7 +6,7 @@ let currentTransactions = [];
 
 // API Configuration
 const API_CONFIG = {
-    AUTH_BASE: 'https://a pi-core.elsoft.id/portal/api',
+    AUTH_BASE: 'https://api-core.elsoft.id/portal/api',
     APP_BASE: 'https://api-app.elsoft.id/admin/api/v1'
 };
 
@@ -444,9 +444,10 @@ function renderItems(items) {
 
     tbody.innerHTML = items.map(item => `
         <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.code || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.category || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(item.price)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Label || item.ItemName || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Code || item.Oid || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.ItemType || item.ItemGroup || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(item.Price || item.UnitPrice || 0)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button onclick="editItem('${item.Oid}')" class="text-primary hover:text-secondary mr-2">Edit</button>
                 <button onclick="deleteItem('${item.Oid}')" class="text-red-600 hover:text-red-900">Hapus</button>
