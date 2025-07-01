@@ -67,7 +67,7 @@ export function showNavbar() {
     document.getElementById('navbar').classList.remove('hidden');
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
     if (currentUser) {
-        document.getElementById('user-info').textContent = `Welcome, ${currentUser.username}`;
+        document.getElementById('user-info').textContent = `Selamat Datang, ${currentUser.username}`;
     }
 }
 
