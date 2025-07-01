@@ -4,6 +4,10 @@ let authToken = null;
 let currentItems = [];
 let currentTransactions = [];
 
+// State untuk pagination
+let currentPage = 1;
+let lastPage = 1;
+
 // API Configuration
 const API_CONFIG = {
     AUTH_BASE: 'https://api-core.elsoft.id/portal/api',
@@ -381,12 +385,12 @@ async function apiRequest(url, options = {}) {
 }
 
 // Items Management
-async function loadItems() {
+async function loadItems(page = 1, search = '') {
     try {
         const tbody = document.getElementById('items-table-body');
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                     <div class="flex justify-center items-center">
                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                         <span class="ml-2">Memuat data...</span>
@@ -395,7 +399,10 @@ async function loadItems() {
             </tr>
         `;
 
-        const url = `${API_CONFIG.APP_BASE}/item/list`;
+        let url = `${API_CONFIG.APP_BASE}/item/list?page=${page}`;
+        if (search) {
+            url += `&search=${encodeURIComponent(search)}`;
+        }
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`
@@ -409,9 +416,13 @@ async function loadItems() {
         // Log response
         console.log('Load Items Response:', data);
 
+        // Perbaikan: cek jika data.data adalah array
         if (Array.isArray(data.data)) {
             currentItems = data.data;
+            currentPage = data.meta?.current_page || 1;
+            lastPage = data.meta?.last_page || 1;
             renderItems(currentItems);
+            renderPagination();
         } else {
             throw new Error(data.message || 'Failed to load items');
         }
@@ -420,7 +431,7 @@ async function loadItems() {
         showToast('Gagal memuat data item: ' + error.message, 'error');
         document.getElementById('items-table-body').innerHTML = `
             <tr>
-                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                     Gagal memuat data. <button onclick="loadItems()" class="text-primary hover:underline">Coba lagi</button>
                 </td>
             </tr>
@@ -430,11 +441,28 @@ async function loadItems() {
 
 function renderItems(items) {
     const tbody = document.getElementById('items-table-body');
+    const thead = tbody.parentElement.querySelector('thead');
+    if (thead) {
+        thead.innerHTML = `
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Minimal Penjualan</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Item</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perusahaan</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Berat</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remark</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sedang Aktif</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+            </tr>
+        `;
+    }
 
     if (!items || items.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="10" class="px-6 py-4 text-center text-gray-500">
                     Tidak ada data item
                 </td>
             </tr>
@@ -444,10 +472,15 @@ function renderItems(items) {
 
     tbody.innerHTML = items.map(item => `
         <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Label || item.ItemName || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Code || item.Oid || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.ItemType || item.ItemGroup || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(item.Price || item.UnitPrice || 0)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.SalesAmountMinimum || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Label || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.CompanyName || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Weight || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Remark || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Code || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.ItemGroupName || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.IsActive === 'Y' || item.IsActive === true ? 'Y' : 'N'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(item.BalanceAmount || 0)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button onclick="editItem('${item.Oid}')" class="text-primary hover:text-secondary mr-2">Edit</button>
                 <button onclick="deleteItem('${item.Oid}')" class="text-red-600 hover:text-red-900">Hapus</button>
@@ -456,14 +489,25 @@ function renderItems(items) {
     `).join('');
 }
 
+function renderPagination() {
+    const containerId = 'items-pagination';
+    let container = document.getElementById(containerId);
+    if (!container) {
+        container = document.createElement('div');
+        container.id = containerId;
+        container.className = 'flex justify-center items-center mt-4 space-x-2';
+        document.getElementById('item-page').appendChild(container);
+    }
+    container.innerHTML = `
+        <button onclick="loadItems(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 rounded bg-gray-200 text-gray-700 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}">Prev</button>
+        <span class="px-3">Halaman ${currentPage} dari ${lastPage}</span>
+        <button onclick="loadItems(${currentPage + 1})" ${currentPage === lastPage ? 'disabled' : ''} class="px-3 py-1 rounded bg-gray-200 text-gray-700 ${currentPage === lastPage ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}">Next</button>
+    `;
+}
+
 function filterItems() {
     const searchTerm = document.getElementById('item-search').value.toLowerCase();
-    const filteredItems = currentItems.filter(item =>
-        (item.name && item.name.toLowerCase().includes(searchTerm)) ||
-        (item.code && item.code.toLowerCase().includes(searchTerm)) ||
-        (item.category && item.category.toLowerCase().includes(searchTerm))
-    );
-    renderItems(filteredItems);
+    loadItems(1, searchTerm);
 }
 
 function showItemModal(item = null) {
