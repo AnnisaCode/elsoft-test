@@ -1,4 +1,5 @@
 import { apiRequest } from './api.js';
+import { formatCurrency, showToast } from './utils.js';
 
 // Variabel global terkait item
 export let currentItems = [];
@@ -287,16 +288,4 @@ function formatSalesAmount(val) {
     let num = parseFloat(val.toString().replace(/,/g, '.'));
     if (isNaN(num)) return '0.00';
     return num.toFixed(2);
-}
-function formatCurrency(amount) {
-    if (!amount && amount !== 0) return 'Rp 0';
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0
-    }).format(amount);
-}
-function showToast(message, type = 'info') {
-    // Asumsi fungsi toast global, bisa diimpor dari utils/ui.js nanti
-    if (window.showToast) window.showToast(message, type);
 } 
