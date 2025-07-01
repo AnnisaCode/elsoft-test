@@ -11,7 +11,6 @@ export let lastPage = 1;
 export let totalData = 0;
 export const perPage = 20;
 export let searchTerm = '';
-export let allItemsCache = null;
 
 export async function loadItems(page = 1, search = '', forceReload = false) {
     currentPage = page;
@@ -28,40 +27,25 @@ export async function loadItems(page = 1, search = '', forceReload = false) {
                 </td>
             </tr>
         `;
-        // Jika sudah pernah load dan tidak forceReload, pakai cache
-        if (allItemsCache && !forceReload) {
-            filterAndRenderItems();
-            return;
-        }
-        // Ambil seluruh data dari semua page
-        let allItems = [];
-        let pageNum = 1;
-        let lastPageNum = 1;
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         };
-        do {
-            let url = `https://api-app.elsoft.id/admin/api/v1/item/list?page=${pageNum}&per_page=100`;
-            const response = await fetch(url, { headers });
-            const data = await response.json();
-            if (Array.isArray(data.data)) {
-                allItems = allItems.concat(data.data);
-                lastPageNum = data.meta?.last_page || 1;
-                totalData = data.meta?.total || data.CountTotalFooter || 0;
-            } else {
-                throw new Error(data.message || 'Failed to load items');
-            }
-            pageNum++;
-        } while (pageNum <= lastPageNum);
-        // Urutkan berdasarkan kode descending
-        allItems.sort((a, b) => {
-            if (!a.Code) return 1;
-            if (!b.Code) return -1;
-            return b.Code.localeCompare(a.Code, undefined, { numeric: true, sensitivity: 'base' });
-        });
-        allItemsCache = allItems;
-        filterAndRenderItems();
+        let url = `https://api-app.elsoft.id/admin/api/v1/item/list?page=${page}&per_page=${perPage}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+        let items = [];
+        if (Array.isArray(data.data)) {
+            items = data.data;
+            lastPage = data.meta?.last_page || 1;
+            totalData = data.meta?.total || data.CountTotalFooter || 0;
+        } else {
+            throw new Error(data.message || 'Failed to load items');
+        }
+        currentItems = items;
+        renderItems(currentItems);
+        renderPagination();
     } catch (error) {
         showToast('Gagal memuat data item: ' + error.message, 'error');
         document.getElementById('items-table-body').innerHTML = `
@@ -72,25 +56,6 @@ export async function loadItems(page = 1, search = '', forceReload = false) {
             </tr>
         `;
     }
-}
-
-function filterAndRenderItems() {
-    // Filter search di frontend
-    let filtered = allItemsCache;
-    if (searchTerm) {
-        const term = searchTerm.toLowerCase();
-        filtered = allItemsCache.filter(item =>
-            (item.Label && item.Label.toLowerCase().includes(term)) ||
-            (item.Code && item.Code.toLowerCase().includes(term)) ||
-            (item.ItemGroupName && item.ItemGroupName.toLowerCase().includes(term))
-        );
-    }
-    currentItems = filtered;
-    lastPage = Math.ceil(currentItems.length / perPage);
-    const startIdx = (currentPage - 1) * perPage;
-    const endIdx = startIdx + perPage;
-    renderItems(currentItems.slice(startIdx, endIdx));
-    renderPagination();
 }
 
 export function renderItems(items) {
@@ -133,7 +98,7 @@ export function renderItems(items) {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Remark || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Code || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.ItemGroupName || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.IsActive === 'Y' || item.IsActive === true ? 'Y' : 'N'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.IsActive === 'Y' ? 'Y' : 'N'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(item.BalanceAmount || 0)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDateShort(item.dCreatedAt || item.CreatedAt) || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -193,7 +158,7 @@ export function renderPagination() {
 export function filterItems() {
     searchTerm = document.getElementById('item-search').value.toLowerCase();
     currentPage = 1;
-    filterAndRenderItems();
+    loadItems(1, searchTerm, true);
 }
 
 export async function showItemModal(item = null) {
@@ -238,7 +203,7 @@ export async function showItemModal(item = null) {
         document.getElementById('item-type').value = item.ItemTypeName || 'Product';
         document.getElementById('item-code').value = item.Code || '<<Auto>>';
         document.getElementById('item-title').value = item.Label || '';
-        document.getElementById('item-active').checked = item.IsActive === 'Y' || item.IsActive === true || item.IsActive === 'true';
+        document.getElementById('item-active').checked = item.IsActive === 'Y';
     } else {
         // TAMBAH MODE: render select
         window.renderItemModalFields(false);
@@ -327,35 +292,6 @@ export function populateItemDropdowns() {
     }
 }
 
-function updateCacheAfterAdd(newItem) {
-    if (!allItemsCache) allItemsCache = [];
-    allItemsCache.push(newItem);
-    // Urutkan descending kode
-    allItemsCache.sort((a, b) => {
-        if (!a.Code) return 1;
-        if (!b.Code) return -1;
-        return b.Code.localeCompare(a.Code, undefined, { numeric: true, sensitivity: 'base' });
-    });
-}
-
-function updateCacheAfterEdit(editedItem) {
-    if (!allItemsCache) return;
-    const idx = allItemsCache.findIndex(i => i.Oid === editedItem.Oid);
-    if (idx !== -1) {
-        allItemsCache[idx] = editedItem;
-        allItemsCache.sort((a, b) => {
-            if (!a.Code) return 1;
-            if (!b.Code) return -1;
-            return b.Code.localeCompare(a.Code, undefined, { numeric: true, sensitivity: 'base' });
-        });
-    }
-}
-
-function updateCacheAfterDelete(oid) {
-    if (!allItemsCache) return;
-    allItemsCache = allItemsCache.filter(i => i.Oid !== oid);
-}
-
 export async function handleItemSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -373,7 +309,7 @@ export async function handleItemSubmit(e) {
         ItemGroup: itemGroupOid,
         ItemAccountGroup: itemAccountGroupOid,
         ItemUnit: itemUnitOid,
-        IsActive: document.getElementById('item-active').checked ? 'true' : 'false'
+        IsActive: document.getElementById('item-active').checked ? 'Y' : 'N'
     };
     try {
         let response;
@@ -394,12 +330,7 @@ export async function handleItemSubmit(e) {
         if (response && (response.success !== false || response.data)) {
             showToast(oid ? 'Item berhasil diperbarui' : 'Item berhasil ditambahkan', 'success');
             hideItemModal();
-            if (oid) {
-                updateCacheAfterEdit(newOrEditedItem);
-            } else {
-                updateCacheAfterAdd(newOrEditedItem);
-            }
-            filterAndRenderItems();
+            await loadItems(currentPage, searchTerm, true);
         } else {
             throw new Error(response && response.message ? response.message : 'Failed to save item');
         }
@@ -427,7 +358,6 @@ export async function deleteItem(oid) {
         });
         if (response.success) {
             showToast('Item berhasil dihapus', 'success');
-            updateCacheAfterDelete(oid);
             filterAndRenderItems();
         } else {
             if (response && typeof response === 'object' && (response.message || response._status)) {

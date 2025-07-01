@@ -8,7 +8,6 @@ export let lastTransactionPage = 1;
 export let totalTransactionData = 0;
 export const perPageTransaction = 20;
 export let searchTransactionTerm = '';
-export let allTransactionsCache = null;
 export let masterAccounts = [];
 
 // Master data untuk detail
@@ -30,42 +29,31 @@ export async function loadTransactions(page = 1, search = '', forceReload = fals
                 </td>
             </tr>
         `;
-        // Jika sudah pernah load dan tidak forceReload, pakai cache
-        if (allTransactionsCache && !forceReload) {
-            filterAndRenderTransactions();
-            return;
-        }
-        // Ambil seluruh data dari semua page
-        let allTransactions = [];
-        let pageNum = 1;
-        let lastPageNum = 1;
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         };
-        do {
-            let url = `https://api-app.elsoft.id/admin/api/v1/stockissue/list?page=${pageNum}&per_page=100`;
-            const response = await fetch(url, { headers });
-            let data = await response.json();
-            let transactions = [];
-            if (Array.isArray(data.data)) {
-                transactions = data.data;
-                lastPageNum = data.meta?.last_page || 1;
-                totalTransactionData = data.meta?.total || data.CountTotalFooter || 0;
-            } else if (Array.isArray(data)) {
-                transactions = data;
-                lastPageNum = 1;
-                totalTransactionData = data.length;
-            } else if (data.list && Array.isArray(data.list)) {
-                transactions = data.list;
-                lastPageNum = data.meta?.last_page || 1;
-                totalTransactionData = data.meta?.total || data.list.length;
-            }
-            allTransactions = allTransactions.concat(transactions);
-            pageNum++;
-        } while (pageNum <= lastPageNum);
-        allTransactionsCache = allTransactions;
-        filterAndRenderTransactions();
+        let url = `https://api-app.elsoft.id/admin/api/v1/stockissue/list?page=${page}&per_page=${perPageTransaction}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        const response = await fetch(url, { headers });
+        let data = await response.json();
+        let transactions = [];
+        if (Array.isArray(data.data)) {
+            transactions = data.data;
+            lastTransactionPage = data.meta?.last_page || 1;
+            totalTransactionData = data.meta?.total || data.CountTotalFooter || 0;
+        } else if (Array.isArray(data)) {
+            transactions = data;
+            lastTransactionPage = 1;
+            totalTransactionData = data.length;
+        } else if (data.list && Array.isArray(data.list)) {
+            transactions = data.list;
+            lastTransactionPage = data.meta?.last_page || 1;
+            totalTransactionData = data.meta?.total || data.list.length;
+        }
+        currentTransactions = transactions;
+        renderTransactions(currentTransactions);
+        renderTransactionPagination();
     } catch (error) {
         showToast('Gagal memuat data transaksi: ' + error.message, 'error');
         document.getElementById('transactions-table-body').innerHTML = `
@@ -76,25 +64,6 @@ export async function loadTransactions(page = 1, search = '', forceReload = fals
             </tr>
         `;
     }
-}
-
-function filterAndRenderTransactions() {
-    let filtered = allTransactionsCache;
-    if (searchTransactionTerm) {
-        const term = searchTransactionTerm.toLowerCase();
-        filtered = allTransactionsCache.filter(transaction =>
-            (transaction.CompanyName && transaction.CompanyName.toLowerCase().includes(term)) ||
-            (transaction.Code && transaction.Code.toLowerCase().includes(term)) ||
-            (transaction.Note && transaction.Note.toLowerCase().includes(term)) ||
-            (transaction.AccountName && transaction.AccountName.toLowerCase().includes(term))
-        );
-    }
-    currentTransactions = filtered;
-    lastTransactionPage = Math.ceil(currentTransactions.length / perPageTransaction);
-    const startIdx = (currentTransactionPage - 1) * perPageTransaction;
-    const endIdx = startIdx + perPageTransaction;
-    renderTransactions(currentTransactions.slice(startIdx, endIdx));
-    renderTransactionPagination();
 }
 
 export function renderTransactions(transactions) {
@@ -191,7 +160,7 @@ export function renderTransactionPagination() {
 export function filterTransactions() {
     searchTransactionTerm = document.getElementById('transaction-search').value.toLowerCase();
     currentTransactionPage = 1;
-    filterAndRenderTransactions();
+    loadTransactions(1, searchTransactionTerm, true);
 }
 
 export async function loadMasterAccounts(selectedOid = '') {
@@ -256,45 +225,6 @@ export function hideTransactionModal() {
     document.getElementById('transaction-modal').classList.add('hidden');
 }
 
-// Helper untuk update cache transaksi
-function updateTransactionCacheAfterAdd(newTransaction) {
-    if (!allTransactionsCache) allTransactionsCache = [];
-    allTransactionsCache.push(newTransaction);
-    // Urutkan berdasarkan Date descending (terbaru di atas)
-    allTransactionsCache.sort((a, b) => {
-        const dateA = new Date(a.Date);
-        const dateB = new Date(b.Date);
-        return dateB - dateA;
-    });
-    // Row numbering ulang
-    allTransactionsCache.forEach((t, idx) => t.RowCountNumber = idx + 1);
-}
-
-function updateTransactionCacheAfterEdit(editedTransaction) {
-    if (!allTransactionsCache) return;
-    const idx = allTransactionsCache.findIndex(t => t.Oid === editedTransaction.Oid);
-    if (idx !== -1) {
-        allTransactionsCache[idx] = editedTransaction;
-        allTransactionsCache.sort((a, b) => {
-            const dateA = new Date(a.Date);
-            const dateB = new Date(b.Date);
-            return dateB - dateA;
-        });
-        allTransactionsCache.forEach((t, idx) => t.RowCountNumber = idx + 1);
-    }
-}
-
-function updateTransactionCacheAfterDelete(oid) {
-    if (!allTransactionsCache) return;
-    allTransactionsCache = allTransactionsCache.filter(t => t.Oid !== oid);
-    allTransactionsCache.sort((a, b) => {
-        const dateA = new Date(a.Date);
-        const dateB = new Date(b.Date);
-        return dateB - dateA;
-    });
-    allTransactionsCache.forEach((t, idx) => t.RowCountNumber = idx + 1);
-}
-
 export async function handleTransactionSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -306,7 +236,7 @@ export async function handleTransactionSubmit(e) {
     let code = document.getElementById('transaction-code').value;
     if (oid && code === '<<AutoGenerate>>') {
         // Cari kode asli dari cache
-        const old = allTransactionsCache ? allTransactionsCache.find(t => t.Oid === oid) : null;
+        const old = currentTransactions ? currentTransactions.find(t => t.Oid === oid) : null;
         if (old && old.Code) code = old.Code;
     }
     const date = formData.get('transaction-date') || document.getElementById('transaction-date').value;
@@ -332,7 +262,7 @@ export async function handleTransactionSubmit(e) {
     let statusName = '';
     if (oid) {
         // Cari data transaksi lama dari cache
-        const old = allTransactionsCache ? allTransactionsCache.find(t => t.Oid === oid) : null;
+        const old = currentTransactions ? currentTransactions.find(t => t.Oid === oid) : null;
         if (old) {
             status = old.Status || '';
             statusName = old.StatusName || '';
@@ -372,11 +302,11 @@ export async function handleTransactionSubmit(e) {
             showToast(oid ? 'Transaksi berhasil diperbarui' : 'Transaksi berhasil ditambahkan', 'success');
             hideTransactionModal();
             if (oid) {
-                updateTransactionCacheAfterEdit(newOrEditedTransaction);
+                currentTransactions = currentTransactions.map(t => t.Oid === oid ? newOrEditedTransaction : t);
             } else {
-                updateTransactionCacheAfterAdd(newOrEditedTransaction);
+                currentTransactions.push(newOrEditedTransaction);
             }
-            filterAndRenderTransactions();
+            await loadTransactions(currentTransactionPage, searchTransactionTerm, true);
         } else {
             throw new Error(response.message || 'Failed to save transaction');
         }
@@ -418,8 +348,8 @@ export async function deleteTransaction(oid) {
         });
         if (response.success) {
             showToast('Transaksi berhasil dihapus', 'success');
-            updateTransactionCacheAfterDelete(oid);
-            filterAndRenderTransactions();
+            currentTransactions = currentTransactions.filter(t => t.Oid !== oid);
+            await loadTransactions(currentTransactionPage, searchTransactionTerm, true);
         } else {
             throw new Error(response.message || 'Failed to delete transaction');
         }
