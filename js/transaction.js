@@ -237,6 +237,45 @@ export function hideTransactionModal() {
     document.getElementById('transaction-modal').classList.add('hidden');
 }
 
+// Helper untuk update cache transaksi
+function updateTransactionCacheAfterAdd(newTransaction) {
+    if (!allTransactionsCache) allTransactionsCache = [];
+    allTransactionsCache.push(newTransaction);
+    // Urutkan berdasarkan Date descending (terbaru di atas)
+    allTransactionsCache.sort((a, b) => {
+        const dateA = new Date(a.Date);
+        const dateB = new Date(b.Date);
+        return dateB - dateA;
+    });
+    // Row numbering ulang
+    allTransactionsCache.forEach((t, idx) => t.RowCountNumber = idx + 1);
+}
+
+function updateTransactionCacheAfterEdit(editedTransaction) {
+    if (!allTransactionsCache) return;
+    const idx = allTransactionsCache.findIndex(t => t.Oid === editedTransaction.Oid);
+    if (idx !== -1) {
+        allTransactionsCache[idx] = editedTransaction;
+        allTransactionsCache.sort((a, b) => {
+            const dateA = new Date(a.Date);
+            const dateB = new Date(b.Date);
+            return dateB - dateA;
+        });
+        allTransactionsCache.forEach((t, idx) => t.RowCountNumber = idx + 1);
+    }
+}
+
+function updateTransactionCacheAfterDelete(oid) {
+    if (!allTransactionsCache) return;
+    allTransactionsCache = allTransactionsCache.filter(t => t.Oid !== oid);
+    allTransactionsCache.sort((a, b) => {
+        const dateA = new Date(a.Date);
+        const dateB = new Date(b.Date);
+        return dateB - dateA;
+    });
+    allTransactionsCache.forEach((t, idx) => t.RowCountNumber = idx + 1);
+}
+
 export async function handleTransactionSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -275,21 +314,29 @@ export async function handleTransactionSubmit(e) {
     const oid = document.getElementById('transaction-oid').value;
     try {
         let response;
+        let newOrEditedTransaction = null;
         if (oid) {
             response = await apiRequest(`https://api-app.elsoft.id/admin/api/v1/stockissue/${oid}`, {
                 method: 'POST',
                 body: JSON.stringify(transactionData)
             });
+            newOrEditedTransaction = response.data || response;
         } else {
             response = await apiRequest('https://api-app.elsoft.id/admin/api/v1/stockissue', {
                 method: 'POST',
                 body: JSON.stringify(transactionData)
             });
+            newOrEditedTransaction = response.data || response;
         }
         if ((response && response.success) || response.Oid) {
             showToast(oid ? 'Transaksi berhasil diperbarui' : 'Transaksi berhasil ditambahkan', 'success');
             hideTransactionModal();
-            loadTransactions();
+            if (oid) {
+                updateTransactionCacheAfterEdit(newOrEditedTransaction);
+            } else {
+                updateTransactionCacheAfterAdd(newOrEditedTransaction);
+            }
+            filterAndRenderTransactions();
         } else {
             throw new Error(response.message || 'Failed to save transaction');
         }
@@ -331,7 +378,8 @@ export async function deleteTransaction(oid) {
         });
         if (response.success) {
             showToast('Transaksi berhasil dihapus', 'success');
-            loadTransactions();
+            updateTransactionCacheAfterDelete(oid);
+            filterAndRenderTransactions();
         } else {
             throw new Error(response.message || 'Failed to delete transaction');
         }
