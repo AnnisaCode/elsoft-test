@@ -538,7 +538,7 @@ function showDetailItemModal(mode, parentOid, detail = null) {
     const form = document.getElementById('transaction-detail-item-form');
     form.reset();
     document.getElementById('detail-item-oid').value = detail && detail.Oid ? detail.Oid : '';
-    document.getElementById('detail-qty').value = detail && detail.Quantity ? detail.Quantity : 1;
+    document.getElementById('detail-qty').value = detail && detail.Quantity ? parseInt(detail.Quantity, 10) : 1;
     // Dropdown dari master
     const itemSelect = document.getElementById('detail-item');
     itemSelect.innerHTML = masterDetailItems.map(i => `<option value="${i.Oid}">${i.Label || i.Name || '-'}</option>`).join('');
