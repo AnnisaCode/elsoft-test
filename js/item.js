@@ -164,8 +164,24 @@ export async function showItemModal(item = null) {
     document.getElementById('item-company').value = 'testcase'; // atau ambil dari currentUser
     document.getElementById('item-type').value = 'Product';
     if (item) {
-        // EDIT MODE: render input readonly
-        renderItemModalFields(true, item.ItemGroupName, item.ItemAccountGroupName, item.ItemUnitName);
+        // EDIT MODE: mapping Oid jika perlu
+        let groupOid = item.ItemGroup;
+        let accGroupOid = item.ItemAccountGroup;
+        let unitOid = item.ItemUnit;
+        // Jika Oid kosong, mapping dari label
+        if (!groupOid && item.ItemGroupName) {
+            const found = itemGroups.find(g => g.Label === item.ItemGroupName);
+            if (found) groupOid = found.Oid;
+        }
+        if (!accGroupOid && item.ItemAccountGroupName) {
+            const found = itemAccountGroups.find(a => a.Label === item.ItemAccountGroupName);
+            if (found) accGroupOid = found.Oid;
+        }
+        if (!unitOid && item.ItemUnitName) {
+            const found = itemUnits.find(u => u.Label === item.ItemUnitName);
+            if (found) unitOid = found.Oid;
+        }
+        renderItemModalFields(true, item.ItemGroupName, item.ItemAccountGroupName, item.ItemUnitName, groupOid, accGroupOid, unitOid);
         title.textContent = 'Edit Item';
         document.getElementById('item-oid').value = item.Oid;
         document.getElementById('item-code').value = item.Code || '<<Auto>>';
@@ -193,17 +209,17 @@ export function hideItemModal() {
 export async function handleItemSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const oid = document.getElementById('item-oid').value;
     const itemData = {
         Company: 'd3170153-6b16-4397-bf89-96533ee149ee',
         ItemType: '3adfb47a-eab4-4d44-bde9-efae1bec8543',
         Code: formData.get('item-code'),
         Label: formData.get('item-title'),
-        ItemGroup: formData.get('item-group'),
-        ItemAccountGroup: formData.get('item-account-group'),
-        ItemUnit: formData.get('item-unit'),
+        ItemGroup: '55692914-7402-4dd8-adec-40a823222b3e',
+        ItemAccountGroup: '4fc9683e-f22b-47c6-9525-b054ba24ea42',
+        ItemUnit: '5daf6a23-472d-4921-9945-57674d5fd1aa',
         IsActive: document.getElementById('item-active').checked ? 'true' : 'false'
     };
-    const oid = document.getElementById('item-oid').value;
     try {
         let response;
         if (oid) {
@@ -217,12 +233,13 @@ export async function handleItemSubmit(e) {
                 body: JSON.stringify(itemData)
             });
         }
-        if (response.success) {
+        console.log('API save item response:', response);
+        if (response && (response.success !== false || response.data)) {
             showToast(oid ? 'Item berhasil diperbarui' : 'Item berhasil ditambahkan', 'success');
             hideItemModal();
             loadItems();
         } else {
-            throw new Error(response.message || 'Failed to save item');
+            throw new Error(response && response.message ? response.message : 'Failed to save item');
         }
     } catch (error) {
         showToast('Gagal menyimpan item: ' + error.message, 'error');
