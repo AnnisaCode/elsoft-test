@@ -265,12 +265,66 @@ export async function deleteItem(oid) {
 }
 
 export async function loadItemMasters() {
+    let error = false;
+    // Item Group
     const groupRes = await apiRequest('https://api-app.elsoft.id/admin/api/v1/itemgroup/list');
-    itemGroups = groupRes.data || [];
+    itemGroups = Array.isArray(groupRes.data) ? groupRes.data : [];
+    if (!itemGroups.length) error = true;
+    // Item Account Group
     const accGroupRes = await apiRequest('https://api-app.elsoft.id/admin/api/v1/itemaccountgroup/list');
-    itemAccountGroups = accGroupRes.data || [];
+    itemAccountGroups = Array.isArray(accGroupRes.data) ? accGroupRes.data : [];
+    if (!itemAccountGroups.length) error = true;
+    // Item Unit
     const unitRes = await apiRequest('https://api-app.elsoft.id/admin/api/v1/itemunit/list');
-    itemUnits = unitRes.data || [];
+    itemUnits = Array.isArray(unitRes.data) ? unitRes.data : [];
+    if (!itemUnits.length) error = true;
+
+    // Dropdown element
+    const groupSelect = document.getElementById('item-group');
+    const accGroupSelect = document.getElementById('item-account-group');
+    const unitSelect = document.getElementById('item-unit');
+    const saveBtn = document.querySelector('#item-form button[type="submit"]');
+
+    // Helper untuk set error
+    function setDropdownError(select, msg) {
+        if (select) {
+            select.innerHTML = `<option value="">${msg}</option>`;
+            select.disabled = true;
+        }
+    }
+
+    // Set data jika sukses, jika gagal tampilkan error
+    if (!itemGroups.length) {
+        setDropdownError(groupSelect, 'Gagal load data group');
+        console.error('Gagal load Item Group:', groupRes);
+    } else if (groupSelect) {
+        groupSelect.disabled = false;
+        groupSelect.innerHTML = '<option value="">Pilih Group</option>' +
+            itemGroups.map(g => `<option value="${g.Oid}">${g.Label}</option>`).join('');
+    }
+    if (!itemAccountGroups.length) {
+        setDropdownError(accGroupSelect, 'Gagal load data account group');
+        console.error('Gagal load Item Account Group:', accGroupRes);
+    } else if (accGroupSelect) {
+        accGroupSelect.disabled = false;
+        accGroupSelect.innerHTML = '<option value="">Pilih Account Group</option>' +
+            itemAccountGroups.map(a => `<option value="${a.Oid}">${a.Label}</option>`).join('');
+    }
+    if (!itemUnits.length) {
+        setDropdownError(unitSelect, 'Gagal load data unit');
+        console.error('Gagal load Item Unit:', unitRes);
+    } else if (unitSelect) {
+        unitSelect.disabled = false;
+        unitSelect.innerHTML = '<option value="">Pilih Unit</option>' +
+            itemUnits.map(u => `<option value="${u.Oid}">${u.Label}</option>`).join('');
+    }
+
+    // Disable tombol save jika ada error
+    if (!itemGroups.length || !itemAccountGroups.length || !itemUnits.length) {
+        if (saveBtn) saveBtn.disabled = true;
+    } else {
+        if (saveBtn) saveBtn.disabled = false;
+    }
 }
 
 export function populateItemDropdowns() {

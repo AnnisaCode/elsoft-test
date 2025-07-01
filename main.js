@@ -248,44 +248,6 @@ function getClientIP() {
     return '127.0.0.1';
 }
 
-// API Helper Functions
-async function apiRequest(url, options = {}) {
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-        }
-    };
-
-    const mergedOptions = {
-        ...defaultOptions,
-        ...options,
-        headers: {
-            ...defaultOptions.headers,
-            ...options.headers
-        }
-    };
-
-    try {
-        const response = await fetch(url, mergedOptions);
-        if (response.status === 204) {
-            // No Content, return success langsung
-            return { success: true, _status: 204, _ok: true };
-        }
-        let data;
-        try {
-            data = await response.json();
-        } catch (e) {
-            data = { message: 'Invalid JSON response', parseError: e.message };
-        }
-        data._status = response.status;
-        data._ok = response.ok;
-        return data;
-    } catch (error) {
-        return { message: error.message, _status: 0, _ok: false };
-    }
-}
-
 // Close modals when clicking outside
 window.onclick = function (event) {
     const itemModal = document.getElementById('item-modal');
