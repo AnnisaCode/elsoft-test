@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen flex flex-col">
     <!-- Notification Toast -->
     <div id="toast" class="fixed top-4 right-4 z-50 hidden">
         <div class="bg-white shadow-lg rounded-lg p-4 max-w-sm border-l-4" id="toast-content">
@@ -83,7 +83,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main id="main-content" class="fade-in">
+    <main id="main-content" class="fade-in flex-1">
         <!-- Login Page -->
         <div id="login-page" class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div class="max-w-md w-full space-y-8">
@@ -276,6 +276,9 @@
             </div>
         </div>
     </main>
+    <footer class="w-full text-center py-4 text-xs text-gray-400 flex-shrink-0">
+        © 2025 AnnisaCode — Made with smart work, a bit of lost sleep, and a plate of ayam geprek.
+    </footer>
 
     <!-- Item Modal -->
     <div id="item-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-40">
