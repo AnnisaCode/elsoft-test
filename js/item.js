@@ -243,7 +243,7 @@ export async function showItemModal(item = null) {
         document.getElementById('item-type').value = 'Product';
         document.getElementById('item-code').value = '<<Auto>>';
         document.getElementById('item-title').value = '';
-        document.getElementById('item-active').checked = true;
+        document.getElementById('item-active').checked = false;
     }
     // Pastikan readonly dan abu-abu
     ['item-company', 'item-type', 'item-code'].forEach(id => {
