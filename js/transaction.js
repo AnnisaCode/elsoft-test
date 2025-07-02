@@ -172,18 +172,11 @@ export async function loadMasterAccounts(selectedOid = '') {
         masterAccounts = Array.isArray(data) ? data : (data.data || []);
         const select = document.getElementById('transaction-account');
         if (select) {
-            let filtered = masterAccounts.filter(acc => acc.Name && acc.Oid);
+            // Tampilkan hanya account dengan Oid tertentu
             const specialOid = 'bc54db2f-4b44-4401-be7d-31c21effa9c1';
-            const specialIdx = filtered.findIndex(acc => acc.Oid === specialOid);
-            let result = [];
-            if (specialIdx !== -1) {
-                result = filtered.filter(acc => acc.Oid !== specialOid).slice(0, 4);
-                result.push(filtered[specialIdx]);
-            } else {
-                result = filtered.slice(0, 5);
-            }
+            const filtered = masterAccounts.filter(acc => acc.Oid === specialOid);
             select.innerHTML = '<option value="">Pilih Akun</option>' +
-                result.map(acc => `<option value="${acc.Oid}">${acc.Name}</option>`).join('');
+                filtered.map(acc => `<option value="${acc.Oid}">${acc.Name}</option>`).join('');
             if (selectedOid) select.value = selectedOid;
         }
     } catch (err) {
