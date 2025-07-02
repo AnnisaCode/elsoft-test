@@ -98,7 +98,7 @@ export function renderItems(items) {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Remark || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.Code || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.ItemGroupName || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.IsActive === 'Y' ? 'Y' : 'N'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.IsActive === true || item.IsActive === 'Y' || item.IsActive === 'true' ? 'Y' : 'N'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(item.BalanceAmount || 0)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDateShort(item.dCreatedAt || item.CreatedAt) || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -203,7 +203,7 @@ export async function showItemModal(item = null) {
         document.getElementById('item-type').value = item.ItemTypeName || 'Product';
         document.getElementById('item-code').value = item.Code || '<<Auto>>';
         document.getElementById('item-title').value = item.Label || '';
-        document.getElementById('item-active').checked = item.IsActive === 'Y';
+        document.getElementById('item-active').checked = item.IsActive === true || item.IsActive === 'Y' || item.IsActive === 'true';
     } else {
         // TAMBAH MODE: render select
         window.renderItemModalFields(false);
@@ -293,6 +293,8 @@ export function populateItemDropdowns() {
 }
 
 export async function handleItemSubmit(e) {
+    console.log('DEBUG: SUBMIT ITEM MASUK');
+    console.log('DEBUG: CHECKED VALUE', document.getElementById('item-active').checked);
     e.preventDefault();
     const formData = new FormData(e.target);
     const oid = document.getElementById('item-oid').value;
@@ -309,7 +311,7 @@ export async function handleItemSubmit(e) {
         ItemGroup: itemGroupOid,
         ItemAccountGroup: itemAccountGroupOid,
         ItemUnit: itemUnitOid,
-        IsActive: document.getElementById('item-active').checked ? 'Y' : 'N'
+        IsActive: document.getElementById('item-active').checked
     };
     try {
         let response;
