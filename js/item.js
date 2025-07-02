@@ -293,8 +293,6 @@ export function populateItemDropdowns() {
 }
 
 export async function handleItemSubmit(e) {
-    console.log('DEBUG: SUBMIT ITEM MASUK');
-    console.log('DEBUG: CHECKED VALUE', document.getElementById('item-active').checked);
     e.preventDefault();
     const formData = new FormData(e.target);
     const oid = document.getElementById('item-oid').value;
