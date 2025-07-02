@@ -243,7 +243,7 @@ export async function showItemModal(item = null) {
         document.getElementById('item-type').value = 'Product';
         document.getElementById('item-code').value = '<<Auto>>';
         document.getElementById('item-title').value = '';
-        document.getElementById('item-active').checked = false;
+        document.getElementById('item-active').checked = true;
     }
     // Pastikan readonly dan abu-abu
     ['item-company', 'item-type', 'item-code'].forEach(id => {
@@ -360,7 +360,7 @@ export async function deleteItem(oid) {
         });
         if (response.success) {
             showToast('Item berhasil dihapus', 'success');
-            filterAndRenderItems();
+            await loadItems(currentPage, searchTerm, true);
         } else {
             if (response && typeof response === 'object' && (response.message || response._status)) {
                 showToast('Gagal menghapus item: ' + (response.message || JSON.stringify(response)), 'error');
