@@ -27,12 +27,22 @@ export async function handleLogin(e) {
             osNameInfo: { name: "Mac", version: "10.15", platform: "" },
             Device: "web_" + Date.now(), Model: "Admin Web", Source: "103.242.150.163", Exp: 3
         };
-        const response = await fetch('https://api-core.elsoft.id/portal/api/auth/signin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(loginData)
-        });
-        const result = await response.json();
+        let response;
+        try {
+            response = await fetch('https://api-core.elsoft.id/portal/api/auth/signin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginData)
+            });
+        } catch (fetchErr) {
+            throw new Error('Tidak dapat terhubung ke server. Silakan cek koneksi internet Anda.');
+        }
+        let result;
+        try {
+            result = await response.json();
+        } catch (jsonErr) {
+            throw new Error('Silakan periksa kembali username dan password Anda.');
+        }
         if (response.ok && (result.access_token || (result.data && result.data.token))) {
             let user = result.user || result.data?.user || { username: loginData.UserName, Oid: result.Oid };
             if (!user.Company && (user.CompanyOid || user.company_id)) {
@@ -45,10 +55,18 @@ export async function handleLogin(e) {
             showNavbar();
             navigateToPage('item');
         } else {
-            throw new Error(result.message || result.error || 'Login gagal');
+            let msg = (result && (result.message || result.error)) || 'Login gagal. Silakan periksa kembali username dan password Anda.';
+            if (msg.toLowerCase().includes('unauthorized') || msg.toLowerCase().includes('invalid')) {
+                msg = 'Username atau password salah.';
+            }
+            throw new Error(msg);
         }
     } catch (error) {
-        showToast('Login gagal: ' + error.message, 'error');
+        let msg = error.message;
+        if (msg.toLowerCase().includes('unauthorized') || msg.toLowerCase().includes('invalid')) {
+            msg = 'Username atau password salah.';
+        }
+        showToast('Login gagal: ' + msg, 'error');
     } finally {
         loginBtn.innerHTML = originalText;
         loginBtn.disabled = false;
